@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Инвентарь моей любимой</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Neucha&display=swap" rel="stylesheet">
+    
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Neucha', 'Caveat', cursive;
+            background-color: #f5f2eb; /* Уютный бежевый фон */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #1c1a17;
+            padding: 20px 10px;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Базовый экран */
+        .screen { 
+            display: none; 
+            width: 100%; 
+            max-width: 360px; 
+            text-align: center; 
+        }
+        
+        .screen.active { 
+            display: block; 
+        }
+        
+        h1 {
+            font-family: 'Caveat', cursive;
+            font-weight: 700;
+            font-size: 2.8rem;
+            line-height: 1.3;
+            margin-bottom: 2.5rem;
+        }
+        
+        /* Линия ввода */
+        .custom-input {
+            width: 100%;
+            border: none;
+            border-bottom: 2.5px solid #1c1a17;
+            background: transparent;
+            outline: none;
+            font-family: 'Neucha', cursive;
+            font-size: 1.9rem;
+            color: #1c1a17;
+            text-align: center;
+            padding: 0.4rem;
+            margin-bottom: 2rem;
+        }
+        
+        /* Кнопка */
+        .custom-button {
+            background: transparent;
+            border: 2.5px solid #1c1a17;
+            border-radius: 6px;
+            font-family: 'Caveat', cursive;
+            font-weight: 700;
+            font-size: 1.7rem;
+            color: #1c1a17;
+            padding: 0.5rem 2.5rem;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .custom-button:active { transform: scale(0.95); }
+        
+        /* Контейнер для коробки */
+        .box-container {
+            width: 190px;
+            height: 190px;
+            margin: 10px auto 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Появление коробки */
+        .falling-box {
+            width: 180px;
+            height: 180px;
+            object-fit: contain;
+            cursor: pointer;
+            mix-blend-mode: multiply; 
+            animation: popInBox 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes popInBox {
+            0% { opacity: 0; transform: scale(0.4); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        /* Карточка подарка */
+        .gift-card {
+            border: 2px solid #1c1a17;
+            background: transparent;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 25px;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            animation: fadeInItems 0.8s ease forwards;
+        }
+
+        @keyframes fadeInItems {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .flower-img {
+            width: 130px;
+            height: 130px;
+            object-fit: contain;
+            margin: 0 auto 10px;
+            display: block;
+            mix-blend-mode: multiply;
+        }
+        
+        .gift-title { font-family: 'Caveat', cursive; font-weight: 700; font-size: 1.8rem; margin: 10px 0; }
+        .gift-desc { font-size: 1.3rem; opacity: 0.9; line-height: 1.4; }
+        
+        /* Сетка инвентаря */
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%;
+            margin-top: 15px;
+        }
+        .slot {
+            border: 1.5px dashed rgba(28,26,23,0.3);
+            aspect-ratio: 1 / 1.15;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: transparent;
+            cursor: pointer;
+            padding: 4px;
+        }
+        .slot.unlocked { border-style: solid; border-color: #1c1a17; background: transparent; }
+        
+        .slot img { 
+            width: 85%; 
+            height: 65%; 
+            object-fit: contain; 
+            mix-blend-mode: multiply;
+        }
+        .slot span { font-size: 0.65rem; text-align: center; line-height: 1.1; margin-top: 4px; font-weight: bold; }
+
+        .footer-text {
+            opacity: 0.4;
+            margin-top: 2.5rem;
+            font-size: 1.3rem;
+        }
+
+        /* КНОПКА БУРГЕР-МЕНЮ (3 полосочки) */
+        .burger-menu-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 30px;
+            height: 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .burger-line {
+            width: 100%;
+            height: 3px;
+            background-color: #1c1a17;
+            border-radius: 2px;
+        }
+
+        /* ВЫЕЗЖАЮЩАЯ БОКОВАЯ ШТОРКА (МЕНЮ) */
+        .side-drawer {
+            position: fixed;
+            top: 0;
+            left: -280px; /* Изначально спрятано слева */
+            width: 260px;
+            height: 100%;
+            background-color: #f5f2eb;
+            border-right: 2.5px solid #1c1a17;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.05);
+            z-index: 2000;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .side-drawer.open {
+            left: 0; /* Выезжает наружу */
+        }
+        
+        /* Задний полупрозрачный фон для шторки */
+        .drawer-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(24, 23, 21, 0);
+            z-index: 1999;
+            pointer-events: none;
+            transition: background-color 0.4s ease;
+        }
+        .drawer-overlay.active {
+            background: rgba(24, 23, 21, 0.15);
+            pointer-events: auto;
+        }
+
+        .drawer-title { font-family: 'Caveat', cursive; font-size: 2rem; font-weight: bold; margin-bottom: 15px; border-bottom: 1.5px solid #1c1a17; padding-bottom: 5px; }
+        .drawer-text { font-size: 1.3rem; line-height: 1.4; opacity: 0.85; text-align: left; }
+
+        /* МОДАЛЬНЫЕ ОКНА */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(24, 23, 21, 0);
+            backdrop-filter: blur(0px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            pointer-events: none;
+            transition: background-color 0.5s ease, backdrop-filter 0.5s ease;
+        }
+        
+        .modal-overlay.active { 
+            background: rgba(24, 23, 21, 0.25);
+            backdrop-filter: blur(4px);
+            pointer-events: auto;
+        }
+        
+        .modal-content {
+            background-color: #f5f2eb;
+            border: 2.5px solid #1c1a17;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 340px;
+            padding: 30px 15px;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.9) translateY(15px);
+            transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1), transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        
+        .modal-overlay.active .modal-content {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+        
+        /* Котики в шапке */
+        .congrats-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .modal-cat-icon {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            mix-blend-mode: multiply;
+        }
+        
+        .congrats-title {
+            font-family: 'Caveat', cursive;
+            font-weight: 700;
+            font-size: 2.4rem;
+        }
+        
+        .modal-content img.gift-inside {
+            mix-blend-mode: multiply;
+        }
+
+        .modal-content h2 { font-family: 'Caveat', cursive; font-weight: 700; font-size: 2.2rem; margin: 10px 0 5px; }
+        .modal-date { font-size: 1.1rem; opacity: 0.55; margin-bottom: 15px; }
+        .modal-desc-box { border-top: 1.5px dashed #1c1a17; padding-top: 15px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <div id="drawer-overlay" class="drawer-overlay" onclick="toggleDrawer(false)"></div>
+    <div id="side-drawer" class="side-drawer">
+        <div>
+            <div class="drawer-title">🎮 Игровой хаб</div>
+            <p class="drawer-text">Здесь будут мини-игры, где вы в будущем сможете использовать свои заработанные подарки! Скоро всё будет ~</p>
+        </div>
+        <button onclick="logout()" style="background:none; border:none; color:#1c1a17; opacity:0.4; font-size:1.2rem; font-family:'Neucha'; cursor:pointer; text-decoration: underline; text-align: left;">← Сменить аккаунт</button>
+    </div>
+
+    <div id="screen-login" class="screen active">
+        <span style="font-size: 2rem; opacity: 0.6; margin-bottom: 1rem; display: block;">❤️</span>
+        <h1>Введите имя моей<br>любимой девушки</h1>
+        <input type="text" id="name-input" class="custom-input" placeholder="напишите имя..." maxlength="40">
+        <button onclick="handleLoginOrRegister()" class="custom-button">Продолжить →</button>
+    </div>
+
+    <div id="screen-anim" class="screen">
+        <h1 id="clicks-counter" style="font-family: 'Caveat', cursive; font-size: 3.3rem; margin-top: 10px; margin-bottom: 0.5rem;">Тапай!</h1>
+        
+        <div class="box-container" id="box-slot">
+            </div>
+        
+        <div id="gift-result" style="display: none;">
+            <div class="gift-card">
+                <img src="flower.png" class="flower-img" alt="Цветок">
+                <div class="gift-title">Первый подарок:<br>Цветочек от Джунджурика</div>
+                <div class="gift-desc">Это волшебный цветочек от Джунджурика, способный поднять настроение Настюле на весь день. Или нет — всякое бывает. Чмоки-чмоки.</div>
+            </div>
+            <button onclick="goToInventory()" class="custom-button">Положить в инвентарь</button>
+        </div>
+    </div>
+
+    <div id="screen-inventory" class="screen" style="position: relative;">
+        <div class="burger-menu-btn" onclick="toggleDrawer(true)">
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+        </div>
+
+        <h1 style="font-size: 2rem; margin-bottom: 0.5rem; text-align: left; padding-right: 40px;">Инвентарь моей любимой</h1>
+        <h2 id="beloved-name" style="font-family:'Caveat'; font-size: 2.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #1c1a17; width: 100%; text-align: left;">Имя</h2>
+        
+        <div class="inventory-grid">
+            <div class="slot unlocked" onclick="openGiftModal()">
+                <img src="flower.png" alt="Цветок">
+                <span>Цветочек от<br>Джунджурика</span>
+            </div>
+            
+            <script>
+                for(let i=0; i<19; i++) {
+                    document.write('<div class="slot" style="font-size: 1.1rem; color: rgba(28,26,23,0.3);">＋</div>');
+                }
+            </script>
+        </div>
+        
+        <p class="footer-text">~ ещё подарки скоро будут ~</p>
+    </div>
+
+    <div id="register-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="congrats-header">
+                <img src="cat-wink.png" class="modal-cat-icon" alt="Кот подмигивает">
+                <div class="congrats-title">поздравмяу!</div>
+                <img src="cat-eyes.png" class="modal-cat-icon" alt="Кот смотрит">
+            </div>
+            <h2 id="register-success-text" style="margin-top: 15px; margin-bottom: 25px; font-size: 2rem; font-weight: normal;">Теперь вы зарегистрированы!</h2>
+            <button onclick="closeRegisterAndStart()" class="custom-button" style="font-size: 1.4rem; padding: 0.4rem 2rem;">Открыть подарок →</button>
+        </div>
+    </div>
+
+    <div id="gift-modal" class="modal-overlay" onclick="closeGiftModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <img src="flower.png" class="gift-inside" style="width: 120px; height: 120px; object-fit: contain; margin: 0 auto; display: block;" alt="Цветок">
+            <h2>Цветочек от Джунджурика</h2>
+            <div class="modal-date">получено: 31 мая 2026 г.</div>
+            <div class="modal-desc-box">
+                <p class="gift-desc">Это волшебный цветочек от Джунджурика, способный поднять настроение Настюле на весь день. Или нет — всякое бывает. Чмоки-чмоки.</p>
+            </div>
+            <button onclick="closeGiftModal(null)" class="custom-button" style="font-size: 1.3rem; padding: 0.3rem 1.5rem; border-radius: 6px;">Закрыть</button>
+        </div>
+    </div>
+
+    <script>
+        var requiredClicks = 0;
+        var currentClicks = 0;
+        var isOpened = false;
+        var currentName = "";
+
+        window.onload = function() {
+            document.getElementById('name-input').value = "";
+        };
+
+        // Логика Бокового Меню
+        function toggleDrawer(open) {
+            var drawer = document.getElementById('side-drawer');
+            var overlay = document.getElementById('drawer-overlay');
+            if(open) {
+                drawer.classList.add('open');
+                overlay.classList.add('active');
+            } else {
+                drawer.classList.remove('open');
+                overlay.classList.remove('active');
+            }
+        }
+
+        // Вход / Регистрация
+        function handleLoginOrRegister() {
+            var name = document.getElementById('name-input').value.trim();
+            if(!name) {
+                alert('Пожалуйста, сначала напишите имя ~');
+                return;
+            }
+            
+            currentName = name;
+            document.getElementById('beloved-name').innerText = currentName;
+            
+            var hasOpenedBefore = localStorage.getItem('opened_' + currentName);
+            
+            if (hasOpenedBefore === "true") {
+                document.getElementById('screen-login').classList.remove('active');
+                document.getElementById('screen-inventory').classList.add('active');
+            } else {
+                document.getElementById('register-success-text').innerText = "Теперь вы зарегистрированы под именем " + currentName + "!";
+                document.getElementById('register-modal').classList.add('active');
+            }
+        }
+
+        function closeRegisterAndStart() {
+            document.getElementById('register-modal').classList.remove('active');
+            document.getElementById('screen-login').classList.remove('active');
+            
+            isOpened = false;
+            currentClicks = 0;
+            
+            // СИСТЕМА ШАНСОВ ДЛЯ ТАПАЛКИ
+            var roll = Math.random() * 100; // Роллим число от 0 до 100
+            if (roll <= 3) {
+                // 3% шанс: редкий хардкор режим (от 8 до 30 кликов)
+                requiredClicks = Math.floor(Math.random() * (30 - 8 + 1)) + 8;
+            } else {
+                // 97% шанс: обычный режим (от 3 до 7 кликов)
+                requiredClicks = Math.floor(Math.random() * (7 - 3 + 1)) + 3;
+            }
+            
+            var boxSlot = document.getElementById('box-slot');
+            boxSlot.innerHTML = '<img id="box-image" src="box-closed.png" class="falling-box" onclick="tapBox()">';
+            
+            document.getElementById('clicks-counter').style.display = 'block';
+            document.getElementById('gift-result').style.display = 'none';
+            
+            document.getElementById('screen-anim').classList.add('active');
+        }
+
+        function tapBox() {
+            if(isOpened) return;
+            
+            currentClicks++;
+            var box = document.getElementById('box-image');
+            
+            if (currentClicks < requiredClicks) {
+                var randomX = (Math.random() * 34 - 17).toFixed(1);
+                var randomY = -(Math.random() * 30 + 25).toFixed(1);
+                var randomRotate = (Math.random() * 24 - 12).toFixed(1);
+                var randomScale = (Math.random() * 0.15 + 1.15).toFixed(2);
+                
+                box.style.animation = 'none';
+                box.style.transition = 'none';
+                box.style.transform = 'translate(' + randomX + 'px, ' + randomY + 'px) scale(' + randomScale + ') rotate(' + randomRotate + 'deg)';
+                
+                setTimeout(function() {
+                    box.style.transition = 'transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                    box.style.transform = 'translate(0, 0) scale(1) rotate(0deg)';
+                }, 60);
+
+            } else {
+                isOpened = true;
+                box.style.animation = 'none';
+                box.style.transition = 'transform 0.2s ease';
+                box.style.transform = 'scale(1.35)';
+                
+                setTimeout(function() {
+                    box.src = 'box-open.png';
+                    box.style.transform = 'scale(1)';
+                    document.getElementById('clicks-counter').style.display = 'none';
+                    document.getElementById('gift-result').style.display = 'block';
+                    
+                    localStorage.setItem('opened_' + currentName, 'true');
+                }, 150);
+            }
+        }
+
+        function goToInventory() {
+            document.getElementById('screen-anim').classList.remove('active');
+            document.getElementById('screen-inventory').classList.add('active');
+        }
+
+        function openGiftModal() {
+            document.getElementById('gift-modal').classList.add('active');
+        }
+
+        function closeGiftModal(event) {
+            if (!event || event.target === document.getElementById('gift-modal')) {
+                document.getElementById('gift-modal').classList.remove('active');
+            }
+        }
+
+        function logout() {
+            toggleDrawer(false); // Закрываем шторку перед выходом
+            document.getElementById('screen-inventory').classList.remove('active');
+            document.getElementById('name-input').value = "";
+            document.getElementById('screen-login').classList.add('active');
+        }
+    </script>
+</body>
+</html>
