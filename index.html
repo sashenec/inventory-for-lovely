@@ -14,7 +14,7 @@
         
         body {
             font-family: 'Neucha', 'Caveat', cursive;
-            background-color: #f5f2eb; /* Уютный бежевый фон */
+            background-color: #f5f2eb; 
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -75,7 +75,7 @@
         }
         .custom-button:active { transform: scale(0.95); }
         
-        /* Контейнер для коробки */
+        /* Контейнер для коробки и эффектов */
         .box-container {
             width: 190px;
             height: 190px;
@@ -83,6 +83,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
         }
 
         /* Появление коробки */
@@ -93,6 +94,8 @@
             cursor: pointer;
             mix-blend-mode: multiply; 
             animation: popInBox 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            position: relative;
+            z-index: 5;
         }
 
         @keyframes popInBox {
@@ -100,7 +103,7 @@
             100% { opacity: 1; transform: scale(1); }
         }
         
-        /* Карточка подарка */
+        /* Карточка подарка при выпадении */
         .gift-card {
             border: 2px solid #1c1a17;
             background: transparent;
@@ -110,6 +113,7 @@
             margin-bottom: 1.5rem;
             width: 100%;
             animation: fadeInItems 0.8s ease forwards;
+            position: relative;
         }
 
         @keyframes fadeInItems {
@@ -117,19 +121,48 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .flower-img {
+        /* Контейнер для предметов со свечением */
+        .glow-wrapper {
+            position: relative;
             width: 130px;
             height: 130px;
+            margin: 0 auto 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* ЭФФЕКТ МАГИЧЕСКОГО СВЕЧЕНИЯ (АУРА) */
+        .glow-wrapper::before {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,190,118,0.7) 0%, rgba(255,82,82,0.3) 50%, rgba(255,255,255,0) 70%);
+            filter: blur(8px);
+            z-index: 1;
+            animation: pulseGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(0.9); opacity: 0.6; filter: hue-rotate(0deg) blur(8px); }
+            100% { transform: scale(1.2); opacity: 0.9; filter: hue-rotate(360deg) blur(12px); }
+        }
+
+        .flower-img {
+            width: 100%;
+            height: 100%;
             object-fit: contain;
-            margin: 0 auto 10px;
-            display: block;
+            position: relative;
+            z-index: 2;
             mix-blend-mode: multiply;
         }
         
         .gift-title { font-family: 'Caveat', cursive; font-weight: 700; font-size: 1.8rem; margin: 10px 0; }
         .gift-desc { font-size: 1.3rem; opacity: 0.9; line-height: 1.4; }
         
-        /* Сетка инвентаря */
+        /* Сетка инвентаря (Чистый стиль, убрано всё лишнее по образу image_b17e27.png) */
         .inventory-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -148,6 +181,7 @@
             background: transparent;
             cursor: pointer;
             padding: 4px;
+            position: relative;
         }
         .slot.unlocked { border-style: solid; border-color: #1c1a17; background: transparent; }
         
@@ -156,8 +190,10 @@
             height: 65%; 
             object-fit: contain; 
             mix-blend-mode: multiply;
+            position: relative;
+            z-index: 2;
         }
-        .slot span { font-size: 0.65rem; text-align: center; line-height: 1.1; margin-top: 4px; font-weight: bold; }
+        .slot span { font-size: 0.65rem; text-align: center; line-height: 1.1; margin-top: 4px; font-weight: bold; position: relative; z-index: 2; }
 
         .footer-text {
             opacity: 0.4;
@@ -165,7 +201,7 @@
             font-size: 1.3rem;
         }
 
-        /* КНОПКА БУРГЕР-МЕНЮ (3 полосочки) */
+        /* КНОПКА БУРГЕР-МЕНЮ */
         .burger-menu-btn {
             position: absolute;
             top: 20px;
@@ -185,11 +221,11 @@
             border-radius: 2px;
         }
 
-        /* ВЫЕЗЖАЮЩАЯ БОКОВАЯ ШТОРКА (МЕНЮ) */
+        /* БОКОВАЯ ШТОРКА */
         .side-drawer {
             position: fixed;
             top: 0;
-            left: -280px; /* Изначально спрятано слева */
+            left: -280px; 
             width: 260px;
             height: 100%;
             background-color: #f5f2eb;
@@ -202,11 +238,8 @@
             justify-content: space-between;
             transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
-        .side-drawer.open {
-            left: 0; /* Выезжает наружу */
-        }
+        .side-drawer.open { left: 0; }
         
-        /* Задний полупрозрачный фон для шторки */
         .drawer-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -215,10 +248,7 @@
             pointer-events: none;
             transition: background-color 0.4s ease;
         }
-        .drawer-overlay.active {
-            background: rgba(24, 23, 21, 0.15);
-            pointer-events: auto;
-        }
+        .drawer-overlay.active { background: rgba(24, 23, 21, 0.15); pointer-events: auto; }
 
         .drawer-title { font-family: 'Caveat', cursive; font-size: 2rem; font-weight: bold; margin-bottom: 15px; border-bottom: 1.5px solid #1c1a17; padding-bottom: 5px; }
         .drawer-text { font-size: 1.3rem; line-height: 1.4; opacity: 0.85; text-align: left; }
@@ -255,37 +285,107 @@
             opacity: 0;
             transform: scale(0.9) translateY(15px);
             transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1), transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            position: relative;
         }
         
-        .modal-overlay.active .modal-content {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
+        .modal-overlay.active .modal-content { opacity: 1; transform: scale(1) translateY(0); }
         
-        /* Котики в шапке */
-        .congrats-header {
+        .congrats-header { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 5px; }
+        .modal-cat-icon { width: 50px; height: 50px; object-fit: contain; mix-blend-mode: multiply; }
+        .congrats-title { font-family: 'Caveat', cursive; font-weight: 700; font-size: 2.4rem; }
+        
+        /* Модальный контейнер для цветка со свечением */
+        .modal-glow-wrapper {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
             display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 5px;
+            align-items: center;
+        }
+        .modal-glow-wrapper::before {
+            content: '';
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(162, 155, 254, 0.8) 0%, rgba(224, 86, 253, 0.4) 50%, rgba(255,255,255,0) 70%);
+            filter: blur(10px);
+            z-index: 1;
+            animation: pulseGlow 2s ease-in-out infinite alternate;
+        }
+
+        .modal-content img.gift-inside {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            position: relative;
+            z-index: 2;
+            mix-blend-mode: multiply;
+            cursor: pointer;
+            transition: transform 0.1s ease;
         }
         
-        .modal-cat-icon {
-            width: 50px;
-            height: 50px;
+        .gift-inside.shake { animation: itemShakeAnimation 0.4s ease forwards; }
+        @keyframes itemShakeAnimation {
+            0% { transform: scale(1) rotate(0deg); }
+            20% { transform: scale(1.15) rotate(-10deg); }
+            40% { transform: scale(1.15) rotate(12deg); }
+            60% { transform: scale(1.15) rotate(-8deg); }
+            80% { transform: scale(1.15) rotate(6deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .magic-rarity-text {
+            font-family: 'Neucha', cursive;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            background: linear-gradient(90deg, #ff5252, #ffbe76, #2ed573, #1e90ff, #ff5252);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: moveGradient 2s linear infinite;
+        }
+        @keyframes moveGradient {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* ЧАСТИЦЫ СВЕЧЕНИЯ (ИСКРЫ) */
+        .gift-sparkle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            animation: flyOutParticle 0.7s ease-out forwards;
+        }
+        @keyframes flyOutParticle {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+        }
+
+        /* ТЕКСТУРНЫЕ ЧАСТИЦЫ КОТИКОВ ПРИ ТАПЕ КЛЕТКИ */
+        .flying-cat-particle {
+            position: absolute;
+            width: 32px;  /* Размер летящих текстурок */
+            height: 32px;
             object-fit: contain;
             mix-blend-mode: multiply;
+            pointer-events: none;
+            z-index: 999;
+            user-select: none;
+            animation: catFlyAnimation 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
-        
-        .congrats-title {
-            font-family: 'Caveat', cursive;
-            font-weight: 700;
-            font-size: 2.4rem;
-        }
-        
-        .modal-content img.gift-inside {
-            mix-blend-mode: multiply;
+        @keyframes catFlyAnimation {
+            0% { transform: translate(0, 0) scale(0.4) rotate(0deg); opacity: 1; }
+            50% { opacity: 1; }
+            100% { transform: translate(var(--cx), var(--cy)) scale(1.1) rotate(var(--crot)); opacity: 0; }
         }
 
         .modal-content h2 { font-family: 'Caveat', cursive; font-weight: 700; font-size: 2.2rem; margin: 10px 0 5px; }
@@ -314,12 +414,13 @@
     <div id="screen-anim" class="screen">
         <h1 id="clicks-counter" style="font-family: 'Caveat', cursive; font-size: 3.3rem; margin-top: 10px; margin-bottom: 0.5rem;">Тапай!</h1>
         
-        <div class="box-container" id="box-slot">
-            </div>
+        <div class="box-container" id="box-slot"></div>
         
         <div id="gift-result" style="display: none;">
-            <div class="gift-card">
-                <img src="flower.png" class="flower-img" alt="Цветок">
+            <div class="gift-card" id="drop-gift-card">
+                <div class="glow-wrapper">
+                    <img src="flower.png" class="flower-img" alt="Цветок">
+                </div>
                 <div class="gift-title">Первый подарок:<br>Цветочек от Джунджурика</div>
                 <div class="gift-desc">Это волшебный цветочек от Джунджурика, способный поднять настроение Настюле на весь день. Или нет — всякое бывает. Чмоки-чмоки.</div>
             </div>
@@ -338,14 +439,14 @@
         <h2 id="beloved-name" style="font-family:'Caveat'; font-size: 2.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #1c1a17; width: 100%; text-align: left;">Имя</h2>
         
         <div class="inventory-grid">
-            <div class="slot unlocked" onclick="openGiftModal()">
+            <div class="slot unlocked" id="inventory-flower-slot" onclick="openGiftModal()">
                 <img src="flower.png" alt="Цветок">
                 <span>Цветочек от<br>Джунджурика</span>
             </div>
             
             <script>
                 for(let i=0; i<19; i++) {
-                    document.write('<div class="slot" style="font-size: 1.1rem; color: rgba(28,26,23,0.3);">＋</div>');
+                    document.write('<div class="slot" style="font-size: 1.1rem; color: rgba(28,26,23,0.3);" onclick="triggerSound(\'sound-tap\')">＋</div>');
                 }
             </script>
         </div>
@@ -366,10 +467,16 @@
     </div>
 
     <div id="gift-modal" class="modal-overlay" onclick="closeGiftModal(event)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <img src="flower.png" class="gift-inside" style="width: 120px; height: 120px; object-fit: contain; margin: 0 auto; display: block;" alt="Цветок">
+        <div id="modal-content-box" class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-glow-wrapper" id="modal-flower-wrapper">
+                <img src="flower.png" id="clickable-flower" class="gift-inside" alt="Цветок" onclick="handleFlowerClick(event)">
+            </div>
+            
             <h2>Цветочек от Джунджурика</h2>
-            <div class="modal-date">получено: 31 мая 2026 г.</div>
+            
+            <div class="magic-rarity-text">✨ Магическая редкость ✨</div>
+            
+            <div class="modal-date">получено: 31 мая 2026 г.[cite: 1]</div>
             <div class="modal-desc-box">
                 <p class="gift-desc">Это волшебный цветочек от Джунджурика, способный поднять настроение Настюле на весь день. Или нет — всякое бывает. Чмоки-чмоки.</p>
             </div>
@@ -377,18 +484,34 @@
         </div>
     </div>
 
+    <!-- АУДИО ТЕГИ -->
+    <audio id="sound-tap" src="tap.mp3" preload="auto"></audio>
+    <audio id="sound-box-tap" src="box-open.mp3" preload="auto"></audio>
+    <audio id="sound-item-var1" src="click-item1.mp3" preload="auto"></audio>
+    <audio id="sound-item-var2" src="click-item2.mp3" preload="auto"></audio>
+    <audio id="sound-item-var3" src="click-item3.mp3" preload="auto"></audio>
+
     <script>
         var requiredClicks = 0;
         var currentClicks = 0;
         var isOpened = false;
         var currentName = "";
+        var particleIntervals = {}; 
 
         window.onload = function() {
             document.getElementById('name-input').value = "";
         };
 
-        // Логика Бокового Меню
+        function triggerSound(audioId) {
+            var audio = document.getElementById(audioId);
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(function(e) { console.log("Audio play blocked", e); });
+            }
+        }
+
         function toggleDrawer(open) {
+            triggerSound('sound-tap');
             var drawer = document.getElementById('side-drawer');
             var overlay = document.getElementById('drawer-overlay');
             if(open) {
@@ -400,8 +523,8 @@
             }
         }
 
-        // Вход / Регистрация
         function handleLoginOrRegister() {
+            triggerSound('sound-tap');
             var name = document.getElementById('name-input').value.trim();
             if(!name) {
                 alert('Пожалуйста, сначала напишите имя ~');
@@ -416,6 +539,7 @@
             if (hasOpenedBefore === "true") {
                 document.getElementById('screen-login').classList.remove('active');
                 document.getElementById('screen-inventory').classList.add('active');
+                // В инвентаре теперь НЕТ ни свечения, ни автоматических искр
             } else {
                 document.getElementById('register-success-text').innerText = "Теперь вы зарегистрированы под именем " + currentName + "!";
                 document.getElementById('register-modal').classList.add('active');
@@ -423,19 +547,17 @@
         }
 
         function closeRegisterAndStart() {
+            triggerSound('sound-tap');
             document.getElementById('register-modal').classList.remove('active');
             document.getElementById('screen-login').classList.remove('active');
             
             isOpened = false;
             currentClicks = 0;
             
-            // СИСТЕМА ШАНСОВ ДЛЯ ТАПАЛКИ
-            var roll = Math.random() * 100; // Роллим число от 0 до 100
+            var roll = Math.random() * 100;
             if (roll <= 3) {
-                // 3% шанс: редкий хардкор режим (от 8 до 30 кликов)
                 requiredClicks = Math.floor(Math.random() * (30 - 8 + 1)) + 8;
             } else {
-                // 97% шанс: обычный режим (от 3 до 7 кликов)
                 requiredClicks = Math.floor(Math.random() * (7 - 3 + 1)) + 3;
             }
             
@@ -444,17 +566,24 @@
             
             document.getElementById('clicks-counter').style.display = 'block';
             document.getElementById('gift-result').style.display = 'none';
+            stopPassiveParticles('drop-gift-card');
             
             document.getElementById('screen-anim').classList.add('active');
         }
 
+        // КЛИКИ ПО КОРОБКЕ + ВЫЛЕТ ТЕКСТУРНЫХ КОТИКОВ
         function tapBox() {
             if(isOpened) return;
             
             currentClicks++;
             var box = document.getElementById('box-image');
             
+            // Спавним картинки котиков из папки гитхаба
+            spawnMiniCats();
+            
             if (currentClicks < requiredClicks) {
+                triggerSound('sound-box-tap');
+                
                 var randomX = (Math.random() * 34 - 17).toFixed(1);
                 var randomY = -(Math.random() * 30 + 25).toFixed(1);
                 var randomRotate = (Math.random() * 24 - 12).toFixed(1);
@@ -471,6 +600,8 @@
 
             } else {
                 isOpened = true;
+                playTadamSound();
+                
                 box.style.animation = 'none';
                 box.style.transition = 'transform 0.2s ease';
                 box.style.transform = 'scale(1.35)';
@@ -481,31 +612,195 @@
                     document.getElementById('clicks-counter').style.display = 'none';
                     document.getElementById('gift-result').style.display = 'block';
                     
+                    // Пассивные искры на экране выпадения
+                    startPassiveParticles('drop-gift-card', 'card');
+                    
                     localStorage.setItem('opened_' + currentName, 'true');
                 }, 150);
             }
         }
 
+        // СПАВН КАРТИНОК КОТИКОВ ИЗ ТВОИХ ТЕКСТУР
+        function spawnMiniCats() {
+            var container = document.getElementById('box-slot');
+            
+            // Вылетает 3-4 текстурки за один тап
+            var count = Math.floor(Math.random() * 2) + 3; 
+            
+            for (var i = 0; i < count; i++) {
+                var catIdx = Math.floor(Math.random() * 3) + 1; // 1, 2 или 3
+                var cat = document.createElement('img');
+                cat.classList.add('flying-cat-particle');
+                cat.src = 'cat-particle' + catIdx + '.png'; // Подтягиваем нужный файл
+                
+                cat.style.left = 'calc(50% - 16px)';
+                cat.style.top = 'calc(50% - 16px)';
+                
+                var angle = Math.random() * Math.PI * 2;
+                var distance = 65 + Math.random() * 85; 
+                var cx = Math.cos(angle) * distance;
+                var cy = Math.sin(angle) * distance;
+                var crot = Math.floor(Math.random() * 180 - 90) + 'deg'; 
+                
+                cat.style.setProperty('--cx', cx + 'px');
+                cat.style.setProperty('--cy', cy + 'px');
+                cat.style.setProperty('--crot', crot);
+                
+                container.appendChild(cat);
+                
+                (function(el) {
+                    setTimeout(function() { el.remove(); }, 800);
+                })(cat);
+            }
+        }
+
         function goToInventory() {
+            triggerSound('sound-tap');
+            stopPassiveParticles('drop-gift-card'); 
             document.getElementById('screen-anim').classList.remove('active');
             document.getElementById('screen-inventory').classList.add('active');
+            // В инвентаре искры НЕ запускаем!
         }
 
         function openGiftModal() {
+            triggerSound('sound-tap');
             document.getElementById('gift-modal').classList.add('active');
+            startPassiveParticles('modal-flower-wrapper', 'modal'); // Магия активируется только внутри модалки подарка
+            
+            for (var i = 0; i < 15; i++) { createSparkleEffect(null); }
         }
 
         function closeGiftModal(event) {
             if (!event || event.target === document.getElementById('gift-modal')) {
+                triggerSound('sound-tap');
+                stopPassiveParticles('modal-flower-wrapper'); 
                 document.getElementById('gift-modal').classList.remove('active');
             }
         }
 
         function logout() {
-            toggleDrawer(false); // Закрываем шторку перед выходом
+            triggerSound('sound-tap');
+            toggleDrawer(false);
             document.getElementById('screen-inventory').classList.remove('active');
             document.getElementById('name-input').value = "";
             document.getElementById('screen-login').classList.add('active');
+        }
+
+        function handleFlowerClick(event) {
+            var randomVar = Math.floor(Math.random() * 3) + 1;
+            triggerSound('sound-item-var' + randomVar);
+            
+            var flower = document.getElementById('clickable-flower');
+            flower.classList.remove('shake');
+            void flower.offsetWidth;
+            flower.classList.add('shake');
+            
+            for (var i = 0; i < 12; i++) {
+                createSparkleEffect(event);
+            }
+        }
+
+        function createSparkleEffect(clickEvent, targetContainerId) {
+            var container = document.getElementById(targetContainerId || 'modal-content-box');
+            if (!container) return;
+
+            var sparkle = document.createElement('div');
+            sparkle.classList.add('gift-sparkle');
+            
+            var colors = ['#ff5252', '#ffbe76', '#2ed573', '#1e90ff', '#e056fd', '#fffa65'];
+            sparkle.style.background = colors[Math.floor(Math.random() * colors.length)];
+            
+            if (clickEvent) {
+                var rect = container.getBoundingClientRect();
+                sparkle.style.left = (clickEvent.clientX - rect.left) + 'px';
+                sparkle.style.top = (clickEvent.clientY - rect.top) + 'px';
+            } else {
+                sparkle.style.left = '50%';
+                sparkle.style.top = '50%';
+            }
+            
+            var angle = Math.random() * Math.PI * 2;
+            var distance = clickEvent ? (40 + Math.random() * 70) : (25 + Math.random() * 45);
+            var dx = Math.cos(angle) * distance;
+            var dy = Math.sin(angle) * distance;
+            
+            sparkle.style.setProperty('--dx', dx + 'px');
+            sparkle.style.setProperty('--dy', dy + 'px');
+            
+            container.appendChild(sparkle);
+            
+            setTimeout(function() { sparkle.remove(); }, 700);
+        }
+
+        function startPassiveParticles(containerId, mode) {
+            if (particleIntervals[containerId]) return; 
+            
+            particleIntervals[containerId] = setInterval(function() {
+                var container = document.getElementById(containerId);
+                if (!container) return;
+                
+                var sparkle = document.createElement('div');
+                sparkle.classList.add('gift-sparkle');
+                
+                var colors = ['#ff5252', '#ffbe76', '#2ed573', '#1e90ff', '#e056fd', '#fffa65'];
+                sparkle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                if (mode === 'card') {
+                    sparkle.style.left = '50%';
+                    sparkle.style.top = '90px';
+                } else {
+                    sparkle.style.left = '50%';
+                    sparkle.style.top = '50%';
+                }
+                
+                var angle = Math.random() * Math.PI * 2;
+                var distance = 20 + Math.random() * 35;
+                var dx = Math.cos(angle) * distance;
+                var dy = Math.sin(angle) * distance;
+                
+                sparkle.style.setProperty('--dx', dx + 'px');
+                sparkle.style.setProperty('--dy', dy + 'px');
+                
+                container.appendChild(sparkle);
+                
+                setTimeout(function() { sparkle.remove(); }, 700);
+            }, 250); 
+        }
+
+        function stopPassiveParticles(containerId) {
+            if (particleIntervals[containerId]) {
+                clearInterval(particleIntervals[containerId]);
+                delete particleIntervals[containerId];
+            }
+        }
+
+        function playTadamSound() {
+            var AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            var ctx = new AudioContext();
+
+            var osc1 = ctx.createOscillator();
+            var gain1 = ctx.createGain();
+            osc1.type = 'triangle';
+            osc1.frequency.setValueAtTime(330, ctx.currentTime);
+            gain1.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+            osc1.connect(gain1);
+            gain1.connect(ctx.destination);
+            osc1.start(ctx.currentTime);
+            osc1.stop(ctx.currentTime + 0.15);
+
+            var osc2 = ctx.createOscillator();
+            var gain2 = ctx.createGain();
+            osc2.type = 'triangle';
+            osc2.frequency.setValueAtTime(440, ctx.currentTime + 0.12);
+            gain2.gain.setValueAtTime(0, ctx.currentTime);
+            gain2.gain.setValueAtTime(0.4, ctx.currentTime + 0.12);
+            gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.7);
+            osc2.connect(gain2);
+            gain2.connect(ctx.destination);
+            osc2.start(ctx.currentTime + 0.12);
+            osc2.stop(ctx.currentTime + 0.7);
         }
     </script>
 </body>
