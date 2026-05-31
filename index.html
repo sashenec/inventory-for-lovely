@@ -30,6 +30,7 @@
             width: 100%; 
             max-width: 360px; 
             text-align: center; 
+            position: relative;
         }
         
         .screen.active { 
@@ -100,11 +101,26 @@
             animation: popInBox 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
             position: relative;
             z-index: 5;
+            user-select: none;
+            -webkit-user-drag: none;
         }
 
         @keyframes popInBox {
             0% { opacity: 0; transform: scale(0.4); }
             100% { opacity: 1; transform: scale(1); }
+        }
+
+        .box-shake-hit {
+            animation: brawlShake 0.2s ease-in-out;
+        }
+
+        @keyframes brawlShake {
+            0% { transform: scale(1) translate(0, 0) rotate(0deg); }
+            20% { transform: scale(1.08) translate(-8px, 4px) rotate(-6deg); }
+            40% { transform: scale(1.05) translate(6px, -6px) rotate(8deg); }
+            60% { transform: scale(1.08) translate(-5px, -2px) rotate(-4deg); }
+            80% { transform: scale(1.03) translate(4px, 3px) rotate(5deg); }
+            100% { transform: scale(1) translate(0, 0) rotate(0deg); }
         }
         
         .gift-card {
@@ -133,16 +149,24 @@
             justify-content: center;
             align-items: center;
         }
-
         .glow-wrapper::before {
             content: '';
             position: absolute;
             width: 100px;
             height: 100px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(255,190,118,0.7) 0%, rgba(255,82,82,0.3) 50%, rgba(255,255,255,0) 70%);
             filter: blur(8px);
             z-index: 1;
+            opacity: 0.8;
+        }
+
+        .glow-rare::before { background: radial-gradient(circle, rgba(46,213,115,0.8) 0%, rgba(46,213,115,0) 70%); }
+        .glow-epic::before { background: radial-gradient(circle, rgba(224,86,253,0.8) 0%, rgba(224,86,253,0) 70%); }
+        .glow-mythic::before { background: radial-gradient(circle, rgba(255,82,82,0.8) 0%, rgba(255,82,82,0) 70%); }
+        .glow-legendary::before { background: radial-gradient(circle, rgba(255,250,101,0.9) 0%, rgba(255,250,101,0) 70%); }
+        .glow-superrare::before { background: radial-gradient(circle, rgba(30,144,255,0.8) 0%, rgba(30,144,255,0) 70%); }
+        .glow-magic::before {
+            background: radial-gradient(circle, rgba(255,190,118,0.7) 0%, rgba(255,82,82,0.3) 50%, rgba(255,255,255,0) 70%);
             animation: pulseGlow 2s ease-in-out infinite alternate;
         }
 
@@ -193,18 +217,14 @@
             position: relative;
             z-index: 2;
         }
-        .slot span { font-size: 0.65rem; text-align: center; line-height: 1.1; margin-top: 4px; font-weight: bold; position: relative; z-index: 2; }
+        .slot span { font-size: 0.65rem; text-align: center; line-height: 1.1; margin-top: 4px; font-weight: bold; position: relative; z-index: 2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 
-        .footer-text {
-            opacity: 0.4;
-            margin-top: 2.5rem;
-            font-size: 1.3rem;
-        }
+        .footer-text { opacity: 0.4; margin-top: 2.5rem; font-size: 1.3rem; }
 
         .burger-menu-btn {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: -15px;
+            right: 0px;
             width: 30px;
             height: 22px;
             display: flex;
@@ -213,12 +233,7 @@
             cursor: pointer;
             z-index: 10;
         }
-        .burger-line {
-            width: 100%;
-            height: 3px;
-            background-color: #1c1a17;
-            border-radius: 2px;
-        }
+        .burger-line { width: 100%; height: 3px; background-color: #1c1a17; border-radius: 2px; }
 
         .side-drawer {
             position: fixed;
@@ -230,7 +245,7 @@
             border-right: 2.5px solid #1c1a17;
             box-shadow: 5px 0 15px rgba(0,0,0,0.05);
             z-index: 2000;
-            padding: 40px 20px;
+            padding: 30px 20px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -248,8 +263,88 @@
         }
         .drawer-overlay.active { background: rgba(24, 23, 21, 0.15); pointer-events: auto; }
 
-        .drawer-title { font-family: 'Caveat', cursive; font-size: 2rem; font-weight: bold; margin-bottom: 15px; border-bottom: 1.5px solid #1c1a17; padding-bottom: 5px; }
-        .drawer-text { font-size: 1.3rem; line-height: 1.4; opacity: 0.85; text-align: left; }
+        .drawer-menu-items { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
+        .drawer-item { display: flex; align-items: center; gap: 12px; font-size: 1.5rem; cursor: pointer; padding: 8px 5px; border-radius: 6px; transition: background 0.2s; }
+        .drawer-item:hover { background: rgba(28,26,23,0.05); }
+        
+        .drawer-icon { width: 26px; height: 26px; object-fit: contain; mix-blend-mode: multiply; }
+        .drawer-icon.icon-box { width: 34px; height: 34px; } 
+
+        .drawer-buttons { display: flex; flex-direction: column; gap: 10px; position: relative; }
+
+        .rainbow-save-btn {
+            background: none; border: none; font-size: 1.3rem; font-family: 'Neucha'; cursor: pointer; text-align: left; font-weight: bold;
+            background: linear-gradient(90deg, #ff5252, #ffbe76, #2ed573, #1e90ff, #e056fd, #ff5252); background-size: 200% auto;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: moveGradient 2s linear infinite;
+            position: relative; display: inline-block; width: fit-content;
+        }
+
+        .menu-timer-text { font-size: 0.95rem; color: #a0a0a0; font-weight: bold; margin-left: 46px; margin-top: -8px; display: none; }
+
+        .chapter-card {
+            border: 2px solid #1c1a17;
+            border-radius: 12px;
+            padding: 18px 15px;
+            margin-bottom: 15px;
+            text-align: left;
+            background: transparent;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+        .chapter-card:hover {
+            background-color: rgba(28, 26, 23, 0.03);
+            transform: translateY(-2px);
+        }
+        .chapter-card:active {
+            transform: translateY(0);
+        }
+        .chapter-title-text { 
+            font-family: 'Caveat', cursive; 
+            font-weight: bold; 
+            font-size: 1.9rem; 
+            color: #1c1a17;
+            line-height: 1.1;
+        }
+
+        .undertale-box {
+            position: fixed;
+            bottom: -240px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 94%;
+            max-width: 420px;
+            background: #f5f2eb;
+            border: 2.5px solid #1c1a17;
+            border-radius: 14px;
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+            z-index: 6000;
+            box-shadow: 0 10px 30px rgba(28, 26, 23, 0.2);
+            transition: bottom 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            pointer-events: none;
+        }
+        .undertale-box.active { bottom: 20px; pointer-events: auto; }
+        .undertale-avatar { width: 65px; height: 65px; object-fit: contain; border-right: 1.5px dashed #1c1a17; padding-right: 10px; align-self: center; mix-blend-mode: multiply; }
+        .undertale-text-container { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        
+        .undertale-author {
+            font-family: 'Caveat', cursive;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #7f8c8d; /* Поменяли с красного на благородный серый */
+            margin-bottom: 2px;
+            text-align: left;
+        }
+        .undertale-text { 
+            color: #1c1a17; 
+            font-family: 'Neucha', cursive; 
+            font-size: 1.25rem; 
+            line-height: 1.25; 
+            text-align: left; 
+            white-space: pre-line; 
+            word-break: break-word; 
+        }
 
         .modal-overlay {
             position: fixed;
@@ -259,17 +354,12 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 5000;
             padding: 20px;
             pointer-events: none;
             transition: background-color 0.5s ease, backdrop-filter 0.5s ease;
         }
-        
-        .modal-overlay.active { 
-            background: rgba(24, 23, 21, 0.25);
-            backdrop-filter: blur(4px);
-            pointer-events: auto;
-        }
+        .modal-overlay.active { background: rgba(24, 23, 21, 0.25); backdrop-filter: blur(4px); pointer-events: auto; }
         
         .modal-content {
             background-color: #f5f2eb;
@@ -284,9 +374,32 @@
             transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1), transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
             position: relative;
         }
-        
         .modal-overlay.active .modal-content { opacity: 1; transform: scale(1) translateY(0); }
         
+        .modal-content.legendary-layout {
+            max-width: 580px;
+            padding: 25px;
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            gap: 20px;
+            text-align: left;
+            perspective: 1000px; /* Добавили перспективу для 3D */
+        }
+        .legendary-left {
+            flex: 1.2;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .legendary-right {
+            flex: 0.9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
         .congrats-header { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 5px; }
         .modal-cat-icon { width: 50px; height: 50px; object-fit: contain; mix-blend-mode: multiply; }
         .congrats-title { font-family: 'Caveat', cursive; font-weight: 700; font-size: 2.4rem; }
@@ -300,29 +413,38 @@
             justify-content: center;
             align-items: center;
         }
+        .modal-content.legendary-layout .modal-glow-wrapper {
+            width: 100%;
+            height: 100%;
+            min-height: 260px;
+        }
         .modal-glow-wrapper::before {
             content: '';
             position: absolute;
             width: 110px;
             height: 110px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(162, 155, 254, 0.8) 0%, rgba(224, 86, 253, 0.4) 50%, rgba(255,255,255,0) 70%);
             filter: blur(10px);
             z-index: 1;
-            animation: pulseGlow 2s ease-in-out infinite alternate;
+        }
+        .modal-content.legendary-layout .modal-glow-wrapper::before {
+            width: 170px;
+            height: 170px;
+            filter: blur(20px);
         }
 
-        .modal-content img.gift-inside {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            position: relative;
-            z-index: 2;
-            mix-blend-mode: multiply;
-            cursor: pointer;
-            transition: transform 0.1s ease;
-        }
+        .modal-content img.gift-inside { width: 100%; height: 100%; object-fit: contain; position: relative; z-index: 2; mix-blend-mode: multiply; cursor: pointer; transition: transform 0.1s ease; }
         
+        /* 3D Вращение вместо обычного плоского кружения */
+        .modal-content img.gift-inside.rotate-slow {
+            animation: rotate3DY 8s linear infinite;
+            transform-style: preserve-3d;
+        }
+        @keyframes rotate3DY {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+
         .gift-inside.shake { animation: itemShakeAnimation 0.4s ease forwards; }
         @keyframes itemShakeAnimation {
             0% { transform: scale(1) rotate(0deg); }
@@ -333,69 +455,45 @@
             100% { transform: scale(1) rotate(0deg); }
         }
 
-        .magic-rarity-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin: 8px 0;
+        .magic-rarity-container { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 8px 0; }
+        .modal-content.legendary-layout .magic-rarity-container { justify-content: flex-start; margin: 4px 0 10px; }
+        .magic-rarity-text { font-family: 'Neucha', cursive; font-size: 1.4rem; font-weight: bold; letter-spacing: 1px; }
+        
+        .rare-txt { color: #2ed573; }
+        .superrare-txt { color: #1e90ff; }
+        .epic-txt { color: #e056fd; }
+        .mythic-txt { color: #ff5252; }
+        .legendary-txt { color: #ffa502; }
+        .magic-txt {
+            background: linear-gradient(90deg, #ff5252, #ffbe76, #2ed573, #1e90ff, #ff5252); background-size: 200% auto;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: moveGradient 2s linear infinite;
         }
-        .rarity-cat-icon {
-            width: 22px;
-            height: 22px;
-            object-fit: contain;
-            mix-blend-mode: multiply;
-        }
-        .magic-rarity-text {
-            font-family: 'Neucha', cursive;
-            font-size: 1.4rem;
-            font-weight: bold;
-            letter-spacing: 1px;
-            background: linear-gradient(90deg, #ff5252, #ffbe76, #2ed573, #1e90ff, #ff5252);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: moveGradient 2s linear infinite;
-        }
-        @keyframes moveGradient {
-            0% { background-position: 0% center; }
-            100% { background-position: 200% center; }
-        }
+        
+        @keyframes moveGradient { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
 
-        .gift-sparkle {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            animation: flyOutParticle 0.7s ease-out forwards;
-        }
-        @keyframes flyOutParticle {
-            0% { transform: translate(0, 0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
-        }
+        .gift-sparkle { position: absolute; width: 6px; height: 6px; border-radius: 50%; pointer-events: none; z-index: 9999; animation: flyOutParticle 0.7s ease-out forwards; }
+        @keyframes flyOutParticle { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; } }
 
-        .flying-cat-particle {
-            position: absolute;
-            width: 32px;  
-            height: 32px;
-            object-fit: contain;
-            mix-blend-mode: multiply;
-            pointer-events: none;
-            z-index: 999;
-            user-select: none;
-            animation: catFlyAnimation 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-        }
-        @keyframes catFlyAnimation {
-            0% { transform: translate(0, 0) scale(0.4) rotate(0deg); opacity: 1; }
-            50% { opacity: 1; }
-            100% { transform: translate(var(--cx), var(--cy)) scale(1.1) rotate(var(--crot)); opacity: 0; }
-        }
+        .flying-cat-particle { position: absolute; width: 32px; height: 32px; object-fit: contain; mix-blend-mode: multiply; pointer-events: none; z-index: 999; user-select: none; animation: catFlyAnimation 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        @keyframes catFlyAnimation { 0% { transform: translate(0, 0) scale(0.4) rotate(0deg); opacity: 1; } 50% { opacity: 1; } 100% { transform: translate(var(--cx), var(--cy)) scale(1.1) rotate(var(--crot)); opacity: 0; } }
 
         .modal-content h2 { font-family: 'Caveat', cursive; font-weight: 700; font-size: 2.2rem; margin: 10px 0 5px; }
+        .modal-content.legendary-layout h2 { margin-top: 0; margin-bottom: 2px; }
         .modal-date { font-size: 1.1rem; opacity: 0.55; margin-bottom: 15px; }
+        .modal-content.legendary-layout .modal-date { margin-bottom: 10px; }
         .modal-desc-box { border-top: 1.5px dashed #1c1a17; padding-top: 15px; margin-bottom: 20px; }
+        .modal-content.legendary-layout .modal-desc-box { margin-bottom: 15px; flex-grow: 1; }
+        .timer-text { font-size: 1.5rem; color: #a0a0a0; margin-top: 15px; font-weight: bold; }
+
+        @media (max-width: 540px) {
+            .modal-content.legendary-layout {
+                flex-direction: column-reverse;
+                text-align: center;
+                max-width: 340px;
+            }
+            .modal-content.legendary-layout .magic-rarity-container { justify-content: center; }
+            .modal-content.legendary-layout .modal-glow-wrapper { min-height: 200px; }
+        }
     </style>
 </head>
 <body>
@@ -403,10 +501,27 @@
     <div id="drawer-overlay" class="drawer-overlay" onclick="toggleDrawer(false)"></div>
     <div id="side-drawer" class="side-drawer">
         <div>
-            <div class="drawer-title">🎮 Игровой хаб</div>
-            <p class="drawer-text">Здесь будут мини-игры, где вы в будущем сможете использовать свои заработанные подарки! Скоро всё будет ~</p>
+            <div style="font-family: 'Caveat', cursive; font-size: 2.3rem; font-weight: bold; border-bottom: 2px solid #1c1a17; padding-bottom: 5px;">меню меню</div>
+            <div class="drawer-menu-items">
+                <div class="drawer-item" onclick="switchScreen('screen-inventory')">
+                    <img src="backpack.png" class="drawer-icon" alt="Рюкзак">
+                    <span>Инвентарь</span>
+                </div>
+                <div class="drawer-item" onclick="switchScreen('screen-history')">
+                    <img src="book.png" class="drawer-icon" alt="Книжечка">
+                    <span>История</span>
+                </div>
+                <div class="drawer-item" onclick="handleBonusMenuClick()">
+                    <img src="box-closed.png" class="drawer-icon icon-box" alt="Коробка">
+                    <span>Случайный бонус</span>
+                </div>
+                <div id="menu-timer" class="menu-timer-text">00ч 00м 00с</div>
+            </div>
         </div>
-        <button onclick="logout()" style="background:none; border:none; color:#1c1a17; opacity:0.4; font-size:1.2rem; font-family:'Neucha'; cursor:pointer; text-decoration: underline; text-align: left;">← Сменить аккаунт</button>
+        <div class="drawer-buttons" id="save-btn-container">
+            <button onclick="saveAccount()" class="rainbow-save-btn">Сохранить аккаунт</button>
+            <button onclick="logout()" style="background:none; border:none; color:#1c1a17; opacity:0.4; font-size:1.2rem; font-family:'Neucha'; cursor:pointer; text-decoration: underline; text-align: left;">← Сменить аккаунт</button>
+        </div>
     </div>
 
     <div id="screen-login" class="screen active">
@@ -418,53 +533,83 @@
 
     <div id="screen-anim" class="screen">
         <h1 id="clicks-counter" style="font-family: 'Caveat', cursive; font-size: 3.3rem; margin-top: 10px; margin-bottom: 0.5rem;">Тапай!</h1>
-        
         <div class="box-container" id="box-slot"></div>
-        
         <div id="gift-result" style="display: none;">
             <div class="gift-card" id="drop-gift-card">
-                <div class="glow-wrapper">
-                    <img src="flower.png" class="flower-img" alt="Цветок">
-                </div>
+                <div class="glow-wrapper glow-magic"><img src="flower.png" class="flower-img" alt="Цветок"></div>
                 <div class="gift-title">Первый подарок:<br>Цветочек от Джунджурика</div>
                 <div class="gift-desc">Это волшебный цветочек от Джунджурика, способный поднять настроение Настюле на весь день. Или нет — всякое бывает. Чмоки-чмоки.</div>
             </div>
-            <button onclick="goToInventory()" class="custom-button">Положить в инвентарь</button>
+            <button onclick="claimFirstGift()" class="custom-button">Положить в инвентарь</button>
         </div>
     </div>
 
-    <div id="screen-inventory" class="screen" style="position: relative;">
-        <div class="burger-menu-btn" onclick="toggleDrawer(true)">
-            <div class="burger-line"></div>
-            <div class="burger-line"></div>
-            <div class="burger-line"></div>
-        </div>
-
+    <div id="screen-inventory" class="screen">
+        <div class="burger-menu-btn" onclick="toggleDrawer(true)"><div class="burger-line"></div><div class="burger-line"></div><div class="burger-line"></div></div>
         <h1 style="font-size: 2rem; margin-bottom: 0.5rem; text-align: left; padding-right: 40px;">Инвентарь моей любимой</h1>
         <h2 id="beloved-name" style="font-family:'Caveat'; font-size: 2.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #1c1a17; width: 100%; text-align: left;">Имя</h2>
         
-        <div class="inventory-grid">
-            <div class="slot unlocked" id="inventory-flower-slot" onclick="openGiftModal()">
-                <img src="flower.png" alt="Цветок">
-                <span>Цветочек от<br>Джунджурика</span>
-            </div>
-            
-            <script>
-                for(let i=0; i<19; i++) {
-                    document.write('<div class="slot" style="font-size: 1.1rem; color: rgba(28,26,23,0.3);" onclick="triggerSound(\'sound-tap\', 0.3)">＋</div>');
-                }
-            </script>
+        <div class="inventory-grid" id="main-inventory-grid"></div>
+        <p class="footer-text">~ открывай случайный бонус in меню ~</p>
+    </div>
+
+    <div id="screen-history" class="screen">
+        <div class="burger-menu-btn" onclick="toggleDrawer(true)"><div class="burger-line"></div><div class="burger-line"></div><div class="burger-line"></div></div>
+        <h1 style="font-size: 2.3rem; margin-bottom: 1.5rem; text-align: left;">Истории Джунджурика</h1>
+        
+        <div class="chapter-card" onclick="triggerLockedChapterStory(1)">
+            <div class="chapter-title-text">Глава 1</div>
+            <p style="font-size:1.1rem; opacity:0.6; margin-top:5px;">Заблокировано системой</p>
+        </div>
+        <div class="chapter-card" onclick="triggerLockedChapterStory(2)">
+            <div class="chapter-title-text">Глава 2</div>
+            <p style="font-size:1.1rem; opacity:0.6; margin-top:5px;">Требуется ключ воспоминаний</p>
+        </div>
+        <div class="chapter-card" onclick="triggerLockedChapterStory(3)">
+            <div class="chapter-title-text">Глава 3</div>
+            <p style="font-size:1.1rem; opacity:0.6; margin-top:5px;">Заблокировано временем</p>
         </div>
         
-        <p class="footer-text">~ ещё подарки скоро будут ~</p>
+        <button onclick="switchScreen('screen-inventory')" class="custom-button" style="margin-top:20px;">Назад в инвентарь</button>
+    </div>
+
+    <div id="screen-bonus" class="screen">
+        <div class="burger-menu-btn" onclick="toggleDrawer(true)"><div class="burger-line"></div><div class="burger-line"></div><div class="burger-line"></div></div>
+        <h1 style="font-size: 2.1rem; margin-bottom: 0.5rem;">Ежедневный бонус</h1>
+        <p style="font-size:1.2rem; opacity:0.7; margin-bottom:20px;">Испытай удачу раз в сутки!</p>
+        
+        <div class="box-container" id="bonus-box-slot"></div>
+
+        <div id="bonus-result" style="display: none;">
+            <div class="gift-card" id="bonus-gift-card">
+                <div class="glow-wrapper" id="bonus-glow-container"><img src="" id="bonus-item-img" class="flower-img" alt="Бонус"></div>
+                <div class="gift-title" id="bonus-item-title">Предмет</div>
+                <div class="magic-rarity-container">
+                    <div class="magic-rarity-text" id="bonus-item-rarity" style="font-size:1.3rem;">Редкость</div>
+                </div>
+                <div class="gift-desc" id="bonus-item-desc" style="margin-top:10px;">Описание...</div>
+            </div>
+            <button onclick="claimBonus()" class="custom-button">Забрать в инвентарь</button>
+        </div>
+
+        <div id="bonus-fail-result" style="display: none;">
+            <div class="gift-card" style="border-style: dashed; opacity: 0.8;">
+                <div style="width: 110px; height: 110px; margin: 0 auto 15px;">
+                    <img src="box-opened.png" style="width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply;" alt="Пусто">
+                </div>
+                <div class="gift-title" style="color: #7f8c8d;">Упс...</div>
+                <div class="gift-desc" style="text-align: center; color: #555;">В этот раз увы не повезло. <br>Попробуй завтра! Мяу.</div>
+            </div>
+            <button onclick="claimEmptyBonus()" class="custom-button">Эх, ладно...</button>
+        </div>
     </div>
 
     <div id="register-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="congrats-header">
-                <img src="cat-wink.png" class="modal-cat-icon" alt="Кот подмигивает">
+                <img src="cat-wink.png" class="modal-cat-icon" alt="Кот">
                 <div class="congrats-title">поздравмяу!</div>
-                <img src="cat-eyes.png" class="modal-cat-icon" alt="Кот смотрит">
+                <img src="cat-eyes.png" class="modal-cat-icon" alt="Кот">
             </div>
             <h2 id="register-success-text" style="margin-top: 15px; margin-bottom: 25px; font-size: 2rem; font-weight: normal;">Теперь вы зарегистрированы!</h2>
             <button onclick="closeRegisterAndStart()" class="custom-button" style="font-size: 1.4rem; padding: 0.4rem 2rem;">Открыть подарок →</button>
@@ -472,24 +617,14 @@
     </div>
 
     <div id="gift-modal" class="modal-overlay" onclick="closeGiftModal(event)">
-        <div id="modal-content-box" class="modal-content" onclick="event.stopPropagation()">
-            <div class="modal-glow-wrapper" id="modal-flower-wrapper">
-                <img src="flower.png" id="clickable-flower" class="gift-inside" alt="Цветок" onclick="handleFlowerClick(event)">
-            </div>
-            
-            <h2>Цветочек от Джунджурика</h2>
-            
-            <div class="magic-rarity-container">
-                <img src="cat-particle3.png" class="rarity-cat-icon" alt="Котик редкости">
-                <div class="magic-rarity-text">Магическая редкость</div>
-                <img src="cat-particle3.png" class="rarity-cat-icon" alt="Котик редкости">
-            </div>
-            
-            <div class="modal-date">получено: 31 мая 2026 г.</div>
-            <div class="modal-desc-box">
-                <p class="gift-desc">Это волшебный цветочек от Джунджурика, способный поднять настроение Настюле на весь день. Или нет — всякое бывает. Чмоки-чмоки.</p>
-            </div>
-            <button onclick="closeGiftModal(null)" class="custom-button" style="font-size: 1.3rem; padding: 0.3rem 1.5rem; border-radius: 6px;">Закрыть</button>
+        <div id="modal-content-box" class="modal-content" onclick="event.stopPropagation()"></div>
+    </div>
+
+    <div id="undertale-dialog" class="undertale-box" onclick="closeUndertaleBox()">
+        <img src="cat-dialog.png" class="undertale-avatar" alt="Кот">
+        <div class="undertale-text-container">
+            <div class="undertale-author">Джунджурик</div>
+            <div id="undertale-text-field" class="undertale-text"></div>
         </div>
     </div>
 
@@ -498,312 +633,613 @@
     <audio id="sound-item-var1" src="click-item1.mp3" preload="auto"></audio>
     <audio id="sound-item-var2" src="click-item2.mp3" preload="auto"></audio>
     <audio id="sound-item-var3" src="click-item3.mp3" preload="auto"></audio>
+    <music-legendary id="music-legendary" src="cat-theme.mp3" preload="auto" loop></audio>
 
     <script>
-        var requiredClicks = 0;
-        var currentClicks = 0;
-        var isOpened = false;
-        var currentName = "";
-        var particleIntervals = {}; 
+        var requiredClicks = 0; var currentClicks = 0; var isOpened = false;
+        var currentName = ""; var particleIntervals = {}; var textTimeout = null;
+        var isTextWriting = false; var currentBonusItem = null; var timerIntervalId = null;
+        var formattedTimeLeftGlobal = "00ч 00м 00с";
+        var audioCtx = null;
+        var musicFadeInterval = null;
+
+        var bonusItemsDb = {
+            dino: { title: "Динозаврик Кузя", rarity: "Редкий", systemRarity: "rare", img: "dino.png", desc: "самый первый динозаврик которого Настюля достала из киндера и почему то решила назвать его Кузя непонятно почему но Кузя он кстати быстро бегает" },
+            star: { title: "Звездочка Марио", rarity: "Сверхредкий", systemRarity: "superrare", img: "star.png", desc: "эта самая любимая Насиюлина игрушка из киндера ну наверно одна из самых любимых точно в трудную минуту осветит путь Джунджурику" },
+            pochita: { title: "Почита", rarity: "Эпический", systemRarity: "epic", img: "pochita.png", desc: "хм как он сюда попал непонятно но в любом случае теперь у тебя есть демон бензопилы, уверен он тебе пригодится" },
+            sushi: { title: "Сушик", rarity: "Мифический", systemRarity: "mythic", img: "sushi.png", desc: "он вкусный но такой милый что его даже есть не хочется" },
+            cat: { title: "Кэтинаур", rarity: "Легендарный", systemRarity: "legendary", img: "cat.png", desc: "самая крутая фэшэн кукалка монстэр хай по мнению Настюли можно сказать мечта и детский гештальт зато теперь она есть у тебя в твоем виртуальном мире :з" },
+            minion: { title: "Минон Стюарт", rarity: "Магический", systemRarity: "magic", img: "minion.png", desc: "это Стюарт он идиот во всяком случае так кажется на первый взгляд" }
+        };
+
+        var rarityClasses = {
+            "rare": "rare-txt", "superrare": "superrare-txt", "epic": "epic-txt",
+            "mythic": "mythic-txt", "legendary": "legendary-txt", "magic": "magic-txt"
+        };
+        var glowClasses = {
+            "rare": "glow-rare", "superrare": "glow-superrare", "epic": "glow-epic",
+            "mythic": "glow-mythic", "legendary": "glow-legendary", "magic": "glow-magic"
+        };
 
         window.onload = function() {
             document.getElementById('name-input').value = "";
+            startRainbowButtonParticles();
+            
+            var saved = localStorage.getItem('saved_account_name');
+            if (saved) {
+                currentName = saved;
+                document.getElementById('beloved-name').innerText = currentName;
+                document.getElementById('screen-login').classList.remove('active');
+                document.getElementById('screen-inventory').classList.add('active');
+                buildInventoryGrid();
+                startMenuTimerSync();
+            }
         };
 
-        // Изменили функцию для тонкой настройки громкости (defaultVol — если громкость не передана)
+        function playMeowVoice() {
+            try {
+                if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+                if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+                var osc = audioCtx.createOscillator();
+                var gainNode = audioCtx.createGain();
+                osc.type = 'triangle';
+                var baseFreq = 820 + (Math.random() * 80 - 40);
+                osc.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.04);
+            } catch(e) {}
+        }
+
         function triggerSound(audioId, customVolume) {
             var audio = document.getElementById(audioId);
-            if (audio) {
-                audio.currentTime = 0;
-                // Задаем громкость: customVolume или 1.0 на случай если ничего не передали
-                audio.volume = (customVolume !== undefined) ? customVolume : 1.0;
-                audio.play().catch(function(e) { console.log("Audio play blocked", e); });
+            if (audio) { audio.currentTime = 0; audio.volume = customVolume || 1.0; audio.play().catch(e=>{}); }
+        }
+
+        function fadeAudio(audioId, targetVolume, duration, callback) {
+            var audio = document.getElementById(audioId);
+            if (!audio) return;
+            if (targetVolume > 0 && audio.paused) {
+                audio.volume = 0; audio.play().catch(e=>{});
             }
+            clearInterval(musicFadeInterval);
+            var steps = 20; var stepTime = duration / steps;
+            var volumeStep = (targetVolume - audio.volume) / steps;
+            var currentStep = 0;
+
+            musicFadeInterval = setInterval(function() {
+                currentStep++;
+                var nextVol = audio.volume + volumeStep;
+                if (nextVol < 0) nextVol = 0;
+                if (nextVol > 1) nextVol = 1;
+                audio.volume = nextVol;
+
+                if (currentStep >= steps) {
+                    clearInterval(musicFadeInterval);
+                    audio.volume = targetVolume;
+                    if (targetVolume === 0) { audio.pause(); }
+                    if (callback) callback();
+                }
+            }, stepTime);
         }
 
         function toggleDrawer(open) {
-            triggerSound('sound-tap', 0.3); // Сделали тише обычный клик (30%)
+            if(localStorage.getItem('first_gift_claimed_' + currentName) !== 'true') return;
+            triggerSound('sound-tap', 0.3);
             var drawer = document.getElementById('side-drawer');
             var overlay = document.getElementById('drawer-overlay');
-            if(open) {
-                drawer.classList.add('open');
-                overlay.classList.add('active');
-            } else {
-                drawer.classList.remove('open');
-                overlay.classList.remove('active');
-            }
+            if(open) { drawer.classList.add('open'); overlay.classList.add('active'); startMenuTimerSync(); } 
+            else { drawer.classList.remove('open'); overlay.classList.remove('active'); }
         }
 
-        function handleLoginOrRegister() {
-            triggerSound('sound-tap', 0.3); // Сделали тише обычный клик (30%)
-            var name = document.getElementById('name-input').value.trim();
-            if(!name) {
-                alert('Пожалуйста, сначала напишите имя ~');
+        function switchScreen(screenId) {
+            triggerSound('sound-tap', 0.3);
+            toggleDrawer(false); 
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            if (screenId === 'screen-bonus') { setupBonusTab(); }
+        }
+
+        function handleBonusMenuClick() {
+            var lastClaim = localStorage.getItem('last_bonus_time_' + currentName);
+            var now = new Date().getTime();
+            
+            if (currentName === 'админ') {
+                switchScreen('screen-bonus');
                 return;
             }
             
+            if (lastClaim && (now - lastClaim < 24 * 60 * 60 * 1000)) {
+                toggleDrawer(false); 
+                showUndertaleBox("Подожди чуть-чуть, ещё мяу-мяу рано! \nПриходи через: " + formattedTimeLeftGlobal);
+            } else {
+                switchScreen('screen-bonus');
+            }
+        }
+
+        function triggerLockedChapterStory(chapterNumber) {
+            triggerSound('sound-tap', 0.3);
+            showUndertaleBox("Потом, мяу-мяу, потом!");
+        }
+
+        function handleLoginOrRegister() {
+            triggerSound('sound-tap', 0.3);
+            var name = document.getElementById('name-input').value.trim();
+            if(!name) { alert('Пожалуйста, сначала напишите имя ~'); return; }
             currentName = name;
             document.getElementById('beloved-name').innerText = currentName;
+
+            var userState = localStorage.getItem('user_state_' + currentName);
             
-            var hasOpenedBefore = localStorage.getItem('opened_' + currentName);
-            
-            if (hasOpenedBefore === "true") {
+            if (userState === 'registered' || currentName === 'админ') {
+                localStorage.setItem('saved_account_name', currentName);
+                var hasFlower = localStorage.getItem('first_gift_claimed_' + currentName) === 'true';
                 document.getElementById('screen-login').classList.remove('active');
-                document.getElementById('screen-inventory').classList.add('active');
+                
+                if (hasFlower || currentName === 'админ') {
+                    if (currentName === 'админ') {
+                        localStorage.setItem('first_gift_claimed_админ', 'true');
+                        localStorage.setItem('user_state_админ', 'registered');
+                    }
+                    document.getElementById('screen-inventory').classList.add('active');
+                    buildInventoryGrid();
+                    startMenuTimerSync();
+                } else {
+                    document.getElementById('screen-anim').classList.add('active');
+                    resetTapBoxSystem();
+                }
             } else {
-                document.getElementById('register-success-text').innerText = "Теперь вы зарегистрированы под именем " + currentName + "!";
+                document.getElementById('register-success-text').innerText = "Теперь вы зарегистрированы, " + currentName + "!";
                 document.getElementById('register-modal').classList.add('active');
             }
         }
 
         function closeRegisterAndStart() {
-            triggerSound('sound-tap', 0.3); // Сделали тише обычный клик (30%)
+            triggerSound('sound-tap', 0.3);
+            localStorage.setItem('user_state_' + currentName, 'registered');
+            localStorage.setItem('saved_account_name', currentName);
             document.getElementById('register-modal').classList.remove('active');
             document.getElementById('screen-login').classList.remove('active');
-            
-            isOpened = false;
-            currentClicks = 0;
-            
-            var roll = Math.random() * 100;
-            if (roll <= 3) {
-                requiredClicks = Math.floor(Math.random() * (30 - 8 + 1)) + 8;
-            } else {
-                requiredClicks = Math.floor(Math.random() * (7 - 3 + 1)) + 3;
-            }
-            
-            var boxSlot = document.getElementById('box-slot');
-            boxSlot.innerHTML = '<img id="box-image" src="box-closed.png" class="falling-box" onclick="tapBox()">';
-            
-            document.getElementById('clicks-counter').style.display = 'block';
-            document.getElementById('gift-result').style.display = 'none';
-            stopPassiveParticles('drop-gift-card');
-            
             document.getElementById('screen-anim').classList.add('active');
-        }
-
-        function tapBox() {
-            if(isOpened) return;
-            
-            currentClicks++;
-            var box = document.getElementById('box-image');
-            
-            spawnMiniCats();
-            
-            if (currentClicks < requiredClicks) {
-                triggerSound('sound-box-tap', 1.0); // Сделали клик коробки громче (100% мощности)
-                
-                var randomX = (Math.random() * 34 - 17).toFixed(1);
-                var randomY = -(Math.random() * 30 + 25).toFixed(1);
-                var randomRotate = (Math.random() * 24 - 12).toFixed(1);
-                var randomScale = (Math.random() * 0.15 + 1.15).toFixed(2);
-                
-                box.style.animation = 'none';
-                box.style.transition = 'none';
-                box.style.transform = 'translate(' + randomX + 'px, ' + randomY + 'px) scale(' + randomScale + ') rotate(' + randomRotate + 'deg)';
-                
-                setTimeout(function() {
-                    box.style.transition = 'transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                    box.style.transform = 'translate(0, 0) scale(1) rotate(0deg)';
-                }, 60);
-
-            } else {
-                isOpened = true;
-                playTadamSound();
-                
-                box.style.animation = 'none';
-                box.style.transition = 'transform 0.2s ease';
-                box.style.transform = 'scale(1.35)';
-                
-                setTimeout(function() {
-                    box.src = 'box-open.png';
-                    box.style.transform = 'scale(1)';
-                    document.getElementById('clicks-counter').style.display = 'none';
-                    document.getElementById('gift-result').style.display = 'block';
-                    
-                    startPassiveParticles('drop-gift-card', 'card');
-                    
-                    localStorage.setItem('opened_' + currentName, 'true');
-                }, 150);
-            }
-        }
-
-        function spawnMiniCats() {
-            var container = document.getElementById('box-slot');
-            var count = Math.floor(Math.random() * 2) + 3; 
-            
-            for (var i = 0; i < count; i++) {
-                var catIdx = Math.floor(Math.random() * 3) + 1; 
-                var cat = document.createElement('img');
-                cat.classList.add('flying-cat-particle');
-                cat.src = 'cat-particle' + catIdx + '.png'; 
-                
-                cat.style.left = 'calc(50% - 16px)';
-                cat.style.top = 'calc(50% - 16px)';
-                
-                var angle = Math.random() * Math.PI * 2;
-                var distance = 65 + Math.random() * 85; 
-                var cx = Math.cos(angle) * distance;
-                var cy = Math.sin(angle) * distance;
-                var crot = Math.floor(Math.random() * 180 - 90) + 'deg'; 
-                
-                cat.style.setProperty('--cx', cx + 'px');
-                cat.style.setProperty('--cy', cy + 'px');
-                cat.style.setProperty('--crot', crot);
-                
-                container.appendChild(cat);
-                
-                (function(el) {
-                    setTimeout(function() { el.remove(); }, 800);
-                })(cat);
-            }
-        }
-
-        function goToInventory() {
-            triggerSound('sound-tap', 0.3); // Сделали тише обычный клик (30%)
-            stopPassiveParticles('drop-gift-card'); 
-            document.getElementById('screen-anim').classList.remove('active');
-            document.getElementById('screen-inventory').classList.add('active');
-        }
-
-        function openGiftModal() {
-            triggerSound('sound-tap', 0.3); // Сделали тише обычный клик (30%)
-            document.getElementById('gift-modal').classList.add('active');
-            startPassiveParticles('modal-flower-wrapper', 'modal'); 
-            
-            for (var i = 0; i < 15; i++) { createSparkleEffect(null); }
-        }
-
-        function closeGiftModal(event) {
-            if (!event || event.target === document.getElementById('gift-modal')) {
-                triggerSound('sound-tap', 0.3); // Сделали тише обычный клик (30%)
-                stopPassiveParticles('modal-flower-wrapper'); 
-                document.getElementById('gift-modal').classList.remove('active');
-            }
+            resetTapBoxSystem();
         }
 
         function logout() {
-            triggerSound('sound-tap', 0.3); // Сделали тише обычный клик (30%)
-            toggleDrawer(false);
-            document.getElementById('screen-inventory').classList.remove('active');
-            document.getElementById('name-input').value = "";
-            document.getElementById('screen-login').classList.add('active');
+            triggerSound('sound-tap', 0.3);
+            // Сначала убираем меню и оверлей принудительно
+            var drawer = document.getElementById('side-drawer');
+            var overlay = document.getElementById('drawer-overlay');
+            drawer.classList.remove('open');
+            overlay.classList.remove('active');
+            
+            localStorage.removeItem('saved_account_name');
+            currentName = "";
+            
+            setTimeout(function() {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById('screen-login').classList.add('active');
+                document.getElementById('name-input').value = "";
+            }, 150);
         }
 
-        function handleFlowerClick(event) {
-            var randomVar = Math.floor(Math.random() * 3) + 1;
-            triggerSound('sound-item-var' + randomVar, 0.4); // Сделали тише клик по предмету (40%)
+        function saveAccount() {
+            triggerSound('sound-tap', 0.3);
+            toggleDrawer(false); 
+            alert("Ваш аккаунт \"" + currentName + "\" успешно сохранен локально на этом устройстве, мяу!");
+        }
+
+        function resetTapBoxSystem() {
+            requiredClicks = Math.floor(Math.random() * 8) + 3; 
+            currentClicks = 0; isOpened = false;
+            document.getElementById('clicks-counter').innerText = "Тапай!";
+            document.getElementById('gift-result').style.display = 'none';
             
-            var flower = document.getElementById('clickable-flower');
-            flower.classList.remove('shake');
-            void flower.offsetWidth;
-            flower.classList.add('shake');
+            var slot = document.getElementById('box-slot');
+            slot.innerHTML = '<img src="box-closed.png" class="falling-box" id="clickable-box" alt="Коробка" onclick="handleBoxClick()">';
+        }
+
+        function handleBoxClick() {
+            if(isOpened) return;
+            currentClicks++;
+            triggerSound('sound-tap', 0.4);
             
-            for (var i = 0; i < 12; i++) {
-                createSparkleEffect(event);
+            var box = document.getElementById('clickable-box');
+            if (box) {
+                box.classList.remove('box-shake-hit');
+                void box.offsetWidth; 
+                box.classList.add('box-shake-hit');
+                spawnFlyingCatParticles(box);
+            }
+
+            if(currentClicks >= requiredClicks) {
+                isOpened = true;
+                triggerSound('sound-box-tap', 0.8);
+                document.getElementById('clicks-counter').innerText = "Тапай!";
+                if(box) box.src = "box-opened.png"; 
+                
+                setTimeout(function() {
+                    if(box) box.style.display = 'none';
+                    document.getElementById('gift-result').style.display = 'block';
+                    playTadamSound();
+                }, 400);
             }
         }
 
-        function createSparkleEffect(clickEvent, targetContainerId) {
-            var container = document.getElementById(targetContainerId || 'modal-content-box');
-            if (!container) return;
-
-            var sparkle = document.createElement('div');
-            sparkle.classList.add('gift-sparkle');
-            
-            var colors = ['#ff5252', '#ffbe76', '#2ed573', '#1e90ff', '#e056fd', '#fffa65'];
-            sparkle.style.background = colors[Math.floor(Math.random() * colors.length)];
-            
-            if (clickEvent) {
-                var rect = container.getBoundingClientRect();
-                sparkle.style.left = (clickEvent.clientX - rect.left) + 'px';
-                sparkle.style.top = (clickEvent.clientY - rect.top) + 'px';
-            } else {
-                sparkle.style.left = '50%';
-                sparkle.style.top = '50%';
-            }
-            
-            var angle = Math.random() * Math.PI * 2;
-            var distance = clickEvent ? (40 + Math.random() * 70) : (25 + Math.random() * 45);
-            var dx = Math.cos(angle) * distance;
-            var dy = Math.sin(angle) * distance;
-            
-            sparkle.style.setProperty('--dx', dx + 'px');
-            sparkle.style.setProperty('--dy', dy + 'px');
-            
-            container.appendChild(sparkle);
-            
-            setTimeout(function() { sparkle.remove(); }, 700);
+        function claimFirstGift() {
+            triggerSound('sound-tap', 0.3);
+            localStorage.setItem('first_gift_claimed_' + currentName, 'true');
+            switchScreen('screen-inventory');
+            buildInventoryGrid();
         }
 
-        function startPassiveParticles(containerId, mode) {
-            if (particleIntervals[containerId]) return; 
+        function setupBonusTab() {
+            var lastClaim = localStorage.getItem('last_bonus_time_' + currentName);
+            var now = new Date().getTime();
+            var slot = document.getElementById('bonus-box-slot');
             
-            particleIntervals[containerId] = setInterval(function() {
-                var container = document.getElementById(containerId);
-                if (!container) return;
+            document.getElementById('bonus-result').style.display = 'none';
+            document.getElementById('bonus-fail-result').style.display = 'none';
+            slot.style.display = 'flex';
+
+            if (currentName !== 'админ' && lastClaim && (now - lastClaim < 24 * 60 * 60 * 1000)) {
+                slot.innerHTML = '<p class="timer-text">Коробка обновится через некоторое время</p>';
+                return;
+            }
+
+            requiredClicks = Math.floor(Math.random() * 8) + 3;
+            currentClicks = 0; isOpened = false; currentBonusItem = null;
+
+            slot.innerHTML = '<img src="box-closed.png" class="falling-box" id="bonus-clickable-box" alt="Коробка" onclick="handleBonusBoxClick()">';
+        }
+
+        function handleBonusBoxClick() {
+            if(isOpened) return;
+            currentClicks++;
+            triggerSound('sound-tap', 0.4);
+
+            var box = document.getElementById('bonus-clickable-box');
+            if (box) {
+                box.classList.remove('box-shake-hit');
+                void box.offsetWidth;
+                box.classList.add('box-shake-hit');
+                spawnFlyingCatParticles(box);
+            }
+
+            if (currentClicks >= requiredClicks) {
+                isOpened = true;
+                triggerSound('sound-box-tap', 0.8);
+                if(box) box.src = "box-opened.png";
+
+                // Логика защиты от ПОВТОРОК + Шанс на НИЧЕГО
+                var savedItems = JSON.parse(localStorage.getItem('inv_' + currentName) || "[]");
+                var ownedTitles = savedItems.map(i => i.title);
                 
-                var sparkle = document.createElement('div');
-                sparkle.classList.add('gift-sparkle');
+                // Фильтруем базу данных, оставляя только то, чего ещё нет в инвентаре
+                var availableKeys = Object.keys(bonusItemsDb).filter(key => {
+                    return !ownedTitles.includes(bonusItemsDb[key].title);
+                });
+
+                // Шанс 35% получить "Ничего". Если доступных предметов не осталось, шанс 100%
+                var isNothing = Math.random() < 0.35 || availableKeys.length === 0;
+
+                setTimeout(function() {
+                    if(box) box.style.display = 'none';
+                    document.getElementById('bonus-box-slot').style.display = 'none';
+                    
+                    if (isNothing) {
+                        currentBonusItem = null;
+                        document.getElementById('bonus-fail-result').style.display = 'block';
+                    } else {
+                        var randomKey = availableKeys[Math.floor(Math.random() * availableKeys.length)];
+                        currentBonusItem = bonusItemsDb[randomKey];
+
+                        document.getElementById('bonus-item-img').src = currentBonusItem.img;
+                        document.getElementById('bonus-item-title').innerText = currentBonusItem.title;
+                        
+                        var rText = document.getElementById('bonus-item-rarity');
+                        rText.innerText = currentBonusItem.rarity;
+                        rText.className = "magic-rarity-text " + rarityClasses[currentBonusItem.systemRarity];
+                        
+                        document.getElementById('bonus-glow-container').className = "glow-wrapper " + glowClasses[currentBonusItem.systemRarity];
+                        document.getElementById('bonus-item-desc').innerText = currentBonusItem.desc;
+                        
+                        document.getElementById('bonus-result').style.display = 'block';
+                        playTadamSound();
+                    }
+                }, 400);
+            }
+        }
+
+        function claimBonus() {
+            if (!currentBonusItem) return;
+            triggerSound('sound-tap', 0.3);
+
+            var inventory = JSON.parse(localStorage.getItem('inv_' + currentName) || "[]");
+            inventory.push({
+                id: currentBonusItem.systemRarity + "_" + new Date().getTime(),
+                title: currentBonusItem.title,
+                img: currentBonusItem.img,
+                rarity: currentBonusItem.rarity,
+                systemRarity: currentBonusItem.systemRarity,
+                desc: currentBonusItem.desc,
+                date: getFormattedCurrentDate()
+            });
+            localStorage.setItem('inv_' + currentName, JSON.stringify(inventory));
+            
+            if (currentName !== 'админ') {
+                localStorage.setItem('last_bonus_time_' + currentName, new Date().getTime());
+            }
+
+            switchScreen('screen-inventory');
+            buildInventoryGrid();
+        }
+
+        function claimEmptyBonus() {
+            triggerSound('sound-tap', 0.3);
+            if (currentName !== 'админ') {
+                localStorage.setItem('last_bonus_time_' + currentName, new Date().getTime());
+            }
+            switchScreen('screen-inventory');
+            buildInventoryGrid();
+        }
+
+        function buildInventoryGrid() {
+            var grid = document.getElementById('main-inventory-grid');
+            grid.innerHTML = '';
+
+            var items = [];
+            var hasFirstGift = localStorage.getItem('first_gift_claimed_' + currentName) === 'true';
+            
+            if (hasFirstGift) {
+                items.push({
+                    id: 'first_flower',
+                    title: 'Цветочек от Джунджурика',
+                    img: 'flower.png',
+                    rarity: 'Магический бонус',
+                    systemRarity: 'magic',
+                    desc: 'Это волшебный цветочек от Джунджурика, способный поднять настроение Настюле на весь день. Или нет — всякое бывает. Чмоки-чмоки.',
+                    date: 'В самом начале пути'
+                });
+            }
+
+            var savedItems = JSON.parse(localStorage.getItem('inv_' + currentName) || "[]");
+            items = items.concat(savedItems);
+
+            for (let i = 0; i < 16; i++) {
+                var item = items[i];
+                var slot = document.createElement('div');
                 
-                var colors = ['#ff5252', '#ffbe76', '#2ed573', '#1e90ff', '#e056fd', '#fffa65'];
-                sparkle.style.background = colors[Math.floor(Math.random() * colors.length)];
-                
-                if (mode === 'card') {
-                    sparkle.style.left = '50%';
-                    sparkle.style.top = '90px';
+                if (item) {
+                    slot.className = 'slot unlocked';
+                    slot.innerHTML = '<img src="' + item.img + '" alt="Item"><span>' + item.title + '</span>';
+                    
+                    let cleanItemJson = JSON.stringify(item).replace(/"/g, '&quot;');
+                    slot.setAttribute('onclick', 'openLoadedGiftModal("' + cleanItemJson + '")');
                 } else {
-                    sparkle.style.left = '50%';
-                    sparkle.style.top = '50%';
+                    slot.className = 'slot';
                 }
-                
-                var angle = Math.random() * Math.PI * 2;
-                var distance = 20 + Math.random() * 35;
-                var dx = Math.cos(angle) * distance;
-                var dy = Math.sin(angle) * distance;
-                
-                sparkle.style.setProperty('--dx', dx + 'px');
-                sparkle.style.setProperty('--dy', dy + 'px');
-                
-                container.appendChild(sparkle);
-                
-                setTimeout(function() { sparkle.remove(); }, 700);
-            }, 250); 
+                grid.appendChild(slot);
+            }
         }
 
-        function stopPassiveParticles(containerId) {
-            if (particleIntervals[containerId]) {
-                clearInterval(particleIntervals[containerId]);
-                delete particleIntervals[containerId];
+        function openLoadedGiftModal(itemJsonString) {
+            triggerSound('sound-tap', 0.3);
+            var item = JSON.parse(itemJsonString.replace(/&quot;/g, '"'));
+            var contentBox = document.getElementById('modal-content-box');
+            
+            if (item.systemRarity === 'legendary') {
+                contentBox.className = "modal-content legendary-layout";
+                contentBox.innerHTML = `
+                    <div class="legendary-left">
+                        <div>
+                            <h2 id="modal-title-text">${item.title}</h2>
+                            <div class="magic-rarity-container">
+                                <div class="magic-rarity-text ${rarityClasses[item.systemRarity]}">${item.rarity}</div>
+                            </div>
+                            <div class="modal-date">получено: ${item.date}</div>
+                        </div>
+                        <div class="modal-desc-box">
+                            <p class="gift-desc" style="text-align:left;">${item.desc}</p>
+                        </div>
+                        <button onclick="closeGiftModal(null)" class="custom-button" style="font-size: 1.3rem; padding: 0.3rem 1.5rem; width:fit-content;">Закрыть</button>
+                    </div>
+                    <div class="legendary-right">
+                        <div class="modal-glow-wrapper ${glowClasses[item.systemRarity]}">
+                            <img src="cat-full.png" id="clickable-flower" class="gift-inside rotate-slow" alt="Предмет" onclick="handleFlowerClick(event)">
+                        </div>
+                    </div>
+                `;
+                fadeAudio('music-legendary', 0.7, 1500);
+            } else {
+                contentBox.className = "modal-content";
+                contentBox.innerHTML = `
+                    <div class="modal-glow-wrapper ${glowClasses[item.systemRarity]}" id="modal-flower-wrapper">
+                        <img src="${item.img}" id="clickable-flower" class="gift-inside" alt="Предмет" onclick="handleFlowerClick(event)">
+                    </div>
+                    <h2>${item.title}</h2>
+                    <div class="magic-rarity-container">
+                        <div class="magic-rarity-text ${rarityClasses[item.systemRarity]}">${item.rarity}</div>
+                    </div>
+                    <div class="modal-date">получено: ${item.date}</div>
+                    <div class="modal-desc-box">
+                        <p class="gift-desc">${item.desc}</p>
+                    </div>
+                    <button onclick="closeGiftModal(null)" class="custom-button" style="font-size: 1.3rem; padding: 0.3rem 1.5rem;">Закрыть</button>
+                `;
+            }
+            
+            document.getElementById('gift-modal').classList.add('active');
+        }
+
+        function closeGiftModal(e) {
+            if(e) e.stopPropagation();
+            triggerSound('sound-tap', 0.3);
+            document.getElementById('gift-modal').classList.remove('active');
+            fadeAudio('music-legendary', 0, 1000);
+        }
+
+        function handleFlowerClick(e) {
+            e.stopPropagation();
+            var img = document.getElementById('clickable-flower');
+            
+            img.classList.remove('shake');
+            void img.offsetWidth;
+            img.classList.add('shake');
+            
+            var soundIds = ['sound-item-var1', 'sound-item-var2', 'sound-item-var3'];
+            var randomSound = soundIds[Math.floor(Math.random() * soundIds.length)];
+            triggerSound(randomSound, 0.6);
+            
+            spawnSparklesAroundElement(img);
+        }
+
+        function showUndertaleBox(messageText) {
+            if (textTimeout) clearTimeout(textTimeout);
+            isTextWriting = true;
+            
+            var box = document.getElementById('undertale-dialog');
+            var field = document.getElementById('undertale-text-field');
+            field.innerText = "";
+            box.classList.add('active');
+            
+            var cleanText = messageText.replace(/\u00A0/g, ' '); 
+            var currentIdx = 0;
+            
+            function typeLetter() {
+                if (currentIdx < cleanText.length) {
+                    field.innerText += cleanText.charAt(currentIdx);
+                    currentIdx++;
+                    playMeowVoice();
+                    textTimeout = setTimeout(typeLetter, 35);
+                } else {
+                    isTextWriting = false;
+                }
+            }
+            typeLetter();
+        }
+
+        function closeUndertaleBox() {
+            if(isTextWriting) return;
+            document.getElementById('undertale-dialog').classList.remove('active');
+        }
+
+        function startMenuTimerSync() {
+            updateMenuTimerDisplay();
+            if (timerIntervalId) clearInterval(timerIntervalId);
+            timerIntervalId = setInterval(updateMenuTimerDisplay, 1000);
+        }
+
+        function updateMenuTimerDisplay() {
+            if (currentName === 'админ') {
+                document.getElementById('menu-timer').style.display = 'none';
+                formattedTimeLeftGlobal = "00ч 00м 00с";
+                return;
+            }
+
+            var lastClaim = localStorage.getItem('last_bonus_time_' + currentName);
+            var menuTimerEl = document.getElementById('menu-timer');
+            
+            if (!lastClaim) {
+                menuTimerEl.style.display = 'none';
+                formattedTimeLeftGlobal = "00ч 00м 00с";
+                return;
+            }
+            
+            var now = new Date().getTime();
+            var diff = (24 * 60 * 60 * 1000) - (now - lastClaim);
+            
+            if (diff <= 0) {
+                menuTimerEl.style.display = 'none';
+                formattedTimeLeftGlobal = "00ч 00м 00с";
+                clearInterval(timerIntervalId);
+                if(document.getElementById('screen-bonus').classList.contains('active')) {
+                    setupBonusTab();
+                }
+            } else {
+                menuTimerEl.style.display = 'block';
+                var hours = Math.floor(diff / (1000 * 60 * 60));
+                var minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                if(hours < 10) hours = "0" + hours;
+                if(minutes < 10) minutes = "0" + minutes;
+                if(seconds < 10) seconds = "0" + seconds;
+                
+                formattedTimeLeftGlobal = hours + "ч " + minutes + "м " + seconds + "с";
+                menuTimerEl.innerText = formattedTimeLeftGlobal;
+            }
+        }
+
+        function startRainbowButtonParticles() {
+            var btn = document.querySelector('.rainbow-save-btn');
+            if(!btn) return;
+            setInterval(function() {
+                if (Math.random() > 0.4) return;
+                var sparkle = document.createElement('div');
+                sparkle.className = 'gift-sparkle';
+                sparkle.style.backgroundColor = 'hsl(' + (Math.random() * 360) + ', 100%, 70%)';
+                sparkle.style.left = (Math.random() * 80 + 10) + '%';
+                sparkle.style.top = (Math.random() * 60 + 20) + '%';
+                sparkle.style.setProperty('--dx', (Math.random() * 40 - 20) + 'px');
+                sparkle.style.setProperty('--dy', (Math.random() * -30 - 10) + 'px');
+                btn.appendChild(sparkle);
+                setTimeout(function() { sparkle.remove(); }, 700);
+            }, 150);
+        }
+
+        function spawnSparklesAroundElement(el) {
+            var parent = el.parentElement;
+            for (let i = 0; i < 12; i++) {
+                var p = document.createElement('div');
+                p.className = 'gift-sparkle';
+                p.style.backgroundColor = 'hsl(' + (Math.random() * 360) + ', 100%, 75%)';
+                p.style.left = '50%'; p.style.top = '50%';
+                var angle = Math.random() * Math.PI * 2;
+                var distance = Math.random() * 50 + 30;
+                p.style.setProperty('--dx', (Math.cos(angle) * distance) + 'px');
+                p.style.setProperty('--dy', (Math.sin(angle) * distance) + 'px');
+                parent.appendChild(p);
+                ((sparkleEl) => { setTimeout(() => sparkleEl.remove(), 700); })(p);
+            }
+        }
+
+        function spawnFlyingCatParticles(boxElement) {
+            var container = boxElement.parentElement;
+            for(let i=0; i<3; i++) {
+                var cat = document.createElement('img');
+                cat.src = "cat-particle2.png";
+                cat.className = "flying-cat-particle";
+                cat.style.left = "40%"; cat.style.top = "40%";
+                var angle = Math.random() * Math.PI * 2;
+                var d = Math.random() * 60 + 40;
+                cat.style.setProperty('--cx', (Math.cos(angle) * d) + 'px'); 
+                cat.style.setProperty('--cy', (Math.sin(angle) * d) + 'px');
+                cat.style.setProperty('--crot', (Math.random() * 120 - 60) + 'deg');
+                container.appendChild(cat);
+                ((el) => { setTimeout(() => { el.remove(); }, 800); })(cat);
             }
         }
 
         function playTadamSound() {
-            var AudioContext = window.AudioContext || window.webkitAudioContext;
-            if (!AudioContext) return;
+            var AudioContext = window.AudioContext || window.webkitAudioContext; if (!AudioContext) return;
             var ctx = new AudioContext();
+            var osc1 = ctx.createOscillator(); var gain1 = ctx.createGain();
+            osc1.type = 'triangle'; osc1.frequency.setValueAtTime(330, ctx.currentTime);
+            gain1.gain.setValueAtTime(0.3, ctx.currentTime); gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+            osc1.connect(gain1); gain1.connect(ctx.destination); osc1.start(ctx.currentTime); osc1.stop(ctx.currentTime + 0.15);
+            var osc2 = ctx.createOscillator(); var gain2 = ctx.createGain();
+            osc2.type = 'triangle'; osc2.frequency.setValueAtTime(440, ctx.currentTime + 0.12);
+            gain2.gain.setValueAtTime(0, ctx.currentTime); gain2.gain.setValueAtTime(0.4, ctx.currentTime + 0.12);
+            gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+            osc2.connect(gain2); gain2.connect(ctx.destination); osc2.start(ctx.currentTime + 0.12); osc2.stop(ctx.currentTime + 0.4);
+        }
 
-            var osc1 = ctx.createOscillator();
-            var gain1 = ctx.createGain();
-            osc1.type = 'triangle';
-            osc1.frequency.setValueAtTime(330, ctx.currentTime);
-            gain1.gain.setValueAtTime(0.3, ctx.currentTime);
-            gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
-            osc1.connect(gain1);
-            gain1.connect(ctx.destination);
-            osc1.start(ctx.currentTime);
-            osc1.stop(ctx.currentTime + 0.15);
-
-            var osc2 = ctx.createOscillator();
-            var gain2 = ctx.createGain();
-            osc2.type = 'triangle';
-            osc2.frequency.setValueAtTime(440, ctx.currentTime + 0.12);
-            gain2.gain.setValueAtTime(0, ctx.currentTime);
-            gain2.gain.setValueAtTime(0.4, ctx.currentTime + 0.12);
-            gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.7);
-            osc2.connect(gain2);
-            gain2.connect(ctx.destination);
-            osc2.start(ctx.currentTime + 0.12);
-            osc2.stop(ctx.currentTime + 0.7);
+        function getFormattedCurrentDate() {
+            var date = new Date();
+            var months = ["янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+            return date.getDate() + " " + months[date.getMonth()] + " " + date.getFullYear() + " г.";
         }
     </script>
 </body>
