@@ -332,7 +332,7 @@
             font-family: 'Caveat', cursive;
             font-size: 1.4rem;
             font-weight: 700;
-            color: #7f8c8d; /* Поменяли с красного на благородный серый */
+            color: #7f8c8d; 
             margin-bottom: 2px;
             text-align: left;
         }
@@ -340,7 +340,8 @@
             color: #1c1a17; 
             font-family: 'Neucha', cursive; 
             font-size: 1.25rem; 
-            line-height: 1.25; 
+            line-height: 1.5; 
+            word-spacing: 0.35rem; 
             text-align: left; 
             white-space: pre-line; 
             word-break: break-word; 
@@ -384,7 +385,7 @@
             align-items: stretch;
             gap: 20px;
             text-align: left;
-            perspective: 1000px; /* Добавили перспективу для 3D */
+            perspective: 1000px; 
         }
         .legendary-left {
             flex: 1.2;
@@ -435,7 +436,6 @@
 
         .modal-content img.gift-inside { width: 100%; height: 100%; object-fit: contain; position: relative; z-index: 2; mix-blend-mode: multiply; cursor: pointer; transition: transform 0.1s ease; }
         
-        /* 3D Вращение вместо обычного плоского кружения */
         .modal-content img.gift-inside.rotate-slow {
             animation: rotate3DY 8s linear infinite;
             transform-style: preserve-3d;
@@ -443,6 +443,15 @@
         @keyframes rotate3DY {
             from { transform: rotateY(0deg); }
             to { transform: rotateY(360deg); }
+        }
+
+        @keyframes spinOnce {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+        .catinaur-spin-anim {
+            animation: spinOnce 8s linear infinite;
+            transform-style: preserve-3d;
         }
 
         .gift-inside.shake { animation: itemShakeAnimation 0.4s ease forwards; }
@@ -453,6 +462,16 @@
             60% { transform: scale(1.15) rotate(-8deg); }
             80% { transform: scale(1.15) rotate(6deg); }
             100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .gift-inside.cat-bounce-anim { 
+            animation: itemCatBounceShake 0.5s ease-in-out both; 
+        }
+        @keyframes itemCatBounceShake {
+            0% { transform: scale(1) translateY(0) rotate(0deg); }
+            30% { transform: scale(1.05) translateY(-8px) rotate(4deg); }
+            60% { transform: scale(0.96) translateY(2px) rotate(-3deg); }
+            100% { transform: scale(1) translateY(0) rotate(0deg); }
         }
 
         .magic-rarity-container { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 8px 0; }
@@ -595,12 +614,12 @@
         <div id="bonus-fail-result" style="display: none;">
             <div class="gift-card" style="border-style: dashed; opacity: 0.8;">
                 <div style="width: 110px; height: 110px; margin: 0 auto 15px;">
-                    <img src="box-opened.png" style="width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply;" alt="Пусто">
+                    <img src="box-open.png" style="width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply;" alt="Пусто">
                 </div>
                 <div class="gift-title" style="color: #7f8c8d;">Упс...</div>
                 <div class="gift-desc" style="text-align: center; color: #555;">В этот раз увы не повезло. <br>Попробуй завтра! Мяу.</div>
             </div>
-            <button onclick="claimEmptyBonus()" class="custom-button">Эх, ладно...</button>
+            <button id="bonus-fail-btn" onclick="claimEmptyBonus()" class="custom-button">Эх, ладно...</button>
         </div>
     </div>
 
@@ -620,11 +639,15 @@
         <div id="modal-content-box" class="modal-content" onclick="event.stopPropagation()"></div>
     </div>
 
-    <div id="undertale-dialog" class="undertale-box" onclick="closeUndertaleBox()">
+    <div id="undertale-dialog" class="undertale-box" onclick="closeUndertaleBoxIfAllowed(event)">
         <img src="cat-dialog.png" class="undertale-avatar" alt="Кот">
         <div class="undertale-text-container">
             <div class="undertale-author">Джунджурик</div>
             <div id="undertale-text-field" class="undertale-text"></div>
+            <div id="undertale-buttons" style="display:none; margin-top:10px;">
+                <button class="custom-button" style="font-size:1.2rem; padding:0.2rem 1rem; margin-right:10px;" onclick="handleUndertaleBtn(event, 'yes')"></button>
+                <button class="custom-button" style="font-size:1.2rem; padding:0.2rem 1rem;" onclick="handleUndertaleBtn(event, 'no')"></button>
+            </div>
         </div>
     </div>
 
@@ -633,7 +656,8 @@
     <audio id="sound-item-var1" src="click-item1.mp3" preload="auto"></audio>
     <audio id="sound-item-var2" src="click-item2.mp3" preload="auto"></audio>
     <audio id="sound-item-var3" src="click-item3.mp3" preload="auto"></audio>
-    <music-legendary id="music-legendary" src="cat-theme.mp3" preload="auto" loop></audio>
+    <audio id="music-legendary" src="cat-theme.mp3" preload="auto" loop></audio>
+    <audio id="music-catinaur" src="cat-theme.mp3" preload="auto" loop></audio>
 
     <script>
         var requiredClicks = 0; var currentClicks = 0; var isOpened = false;
@@ -642,6 +666,7 @@
         var formattedTimeLeftGlobal = "00ч 00м 00с";
         var audioCtx = null;
         var musicFadeInterval = null;
+        var secondBoxAttempted = false;
 
         var bonusItemsDb = {
             dino: { title: "Динозаврик Кузя", rarity: "Редкий", systemRarity: "rare", img: "dino.png", desc: "самый первый динозаврик которого Настюля достала из киндера и почему то решила назвать его Кузя непонятно почему но Кузя он кстати быстро бегает" },
@@ -746,7 +771,7 @@
             var lastClaim = localStorage.getItem('last_bonus_time_' + currentName);
             var now = new Date().getTime();
             
-            if (currentName === 'админ') {
+            if (currentName === 'Sashenets') {
                 switchScreen('screen-bonus');
                 return;
             }
@@ -773,15 +798,15 @@
 
             var userState = localStorage.getItem('user_state_' + currentName);
             
-            if (userState === 'registered' || currentName === 'админ') {
+            if (userState === 'registered' || currentName === 'Sashenets') {
                 localStorage.setItem('saved_account_name', currentName);
                 var hasFlower = localStorage.getItem('first_gift_claimed_' + currentName) === 'true';
                 document.getElementById('screen-login').classList.remove('active');
                 
-                if (hasFlower || currentName === 'админ') {
-                    if (currentName === 'админ') {
-                        localStorage.setItem('first_gift_claimed_админ', 'true');
-                        localStorage.setItem('user_state_админ', 'registered');
+                if (hasFlower || currentName === 'Sashenets') {
+                    if (currentName === 'Sashenets') {
+                        localStorage.setItem('first_gift_claimed_Sashenets', 'true');
+                        localStorage.setItem('user_state_Sashenets', 'registered');
                     }
                     document.getElementById('screen-inventory').classList.add('active');
                     buildInventoryGrid();
@@ -808,7 +833,6 @@
 
         function logout() {
             triggerSound('sound-tap', 0.3);
-            // Сначала убираем меню и оверлей принудительно
             var drawer = document.getElementById('side-drawer');
             var overlay = document.getElementById('drawer-overlay');
             drawer.classList.remove('open');
@@ -857,7 +881,7 @@
                 isOpened = true;
                 triggerSound('sound-box-tap', 0.8);
                 document.getElementById('clicks-counter').innerText = "Тапай!";
-                if(box) box.src = "box-opened.png"; 
+                if(box) box.src = "box-open.png"; 
                 
                 setTimeout(function() {
                     if(box) box.style.display = 'none';
@@ -883,14 +907,56 @@
             document.getElementById('bonus-fail-result').style.display = 'none';
             slot.style.display = 'flex';
 
-            if (currentName !== 'админ' && lastClaim && (now - lastClaim < 24 * 60 * 60 * 1000)) {
+            if (currentName !== 'Sashenets' && lastClaim && (now - lastClaim < 24 * 60 * 60 * 1000)) {
                 slot.innerHTML = '<p class="timer-text">Коробка обновится через некоторое время</p>';
                 return;
             }
 
             requiredClicks = Math.floor(Math.random() * 8) + 3;
             currentClicks = 0; isOpened = false; currentBonusItem = null;
+            secondBoxAttempted = false;
 
+            slot.innerHTML = '<img src="box-closed.png" class="falling-box" id="bonus-clickable-box" alt="Коробка" onclick="handleBonusBoxClick()">';
+        }
+
+        function triggerFailedBoxDialogue(step) {
+            showUndertaleBox("Может быть, у меня есть для тебя другая коробка...");
+            var checkInterval = setInterval(() => {
+                if (!isTextWriting) {
+                    clearInterval(checkInterval);
+                    setTimeout(() => {
+                        var rand = Math.random();
+                        if (rand < 0.5) {
+                            showUndertaleBox("Ага! Нашел еще одну. Давай, открывай, мяу!");
+                            var checkInterval2 = setInterval(() => {
+                                if (!isTextWriting) {
+                                    clearInterval(checkInterval2);
+                                    setTimeout(() => { spawnSecondBox(); }, 1500);
+                                }
+                            }, 100);
+                        } else {
+                            showUndertaleBoxWithButtons("Ой, прости... кажется, у меня больше нет коробок. Поискать?", "Да", "Нет", function(res) {
+                                if (res === 'no') {
+                                    closeUndertaleBox();
+                                    document.getElementById('bonus-fail-btn').style.display = 'inline-block';
+                                } else {
+                                    spawnSecondBox();
+                                }
+                            });
+                        }
+                    }, 1000);
+                }
+            }, 100);
+        }
+
+        function spawnSecondBox() {
+            closeUndertaleBox();
+            document.getElementById('bonus-fail-result').style.display = 'none';
+            var slot = document.getElementById('bonus-box-slot');
+            slot.style.display = 'flex';
+            requiredClicks = Math.floor(Math.random() * 8) + 3;
+            currentClicks = 0; isOpened = false; currentBonusItem = null;
+            secondBoxAttempted = true;
             slot.innerHTML = '<img src="box-closed.png" class="falling-box" id="bonus-clickable-box" alt="Коробка" onclick="handleBonusBoxClick()">';
         }
 
@@ -910,19 +976,49 @@
             if (currentClicks >= requiredClicks) {
                 isOpened = true;
                 triggerSound('sound-box-tap', 0.8);
-                if(box) box.src = "box-opened.png";
 
-                // Логика защиты от ПОВТОРОК + Шанс на НИЧЕГО
                 var savedItems = JSON.parse(localStorage.getItem('inv_' + currentName) || "[]");
                 var ownedTitles = savedItems.map(i => i.title);
                 
-                // Фильтруем базу данных, оставляя только то, чего ещё нет в инвентаре
                 var availableKeys = Object.keys(bonusItemsDb).filter(key => {
                     return !ownedTitles.includes(bonusItemsDb[key].title);
                 });
 
-                // Шанс 35% получить "Ничего". Если доступных предметов не осталось, шанс 100%
-                var isNothing = Math.random() < 0.35 || availableKeys.length === 0;
+                var isNothing = false;
+                var selectedKey = null;
+
+                if (availableKeys.length === 0) {
+                    isNothing = true;
+                } else {
+                    var weights = {
+                        "magic": 3,
+                        "legendary": 5,
+                        "mythic": 10,
+                        "epic": 15,
+                        "superrare": 20,
+                        "rare": 25
+                    };
+                    var totalWeight = 50; 
+                    availableKeys.forEach(k => { totalWeight += weights[bonusItemsDb[k].systemRarity]; });
+                    
+                    var roll = Math.random() * totalWeight;
+                    if (roll < 50) {
+                        isNothing = true;
+                    } else {
+                        var currentWeight = 50;
+                        for (var i = 0; i < availableKeys.length; i++) {
+                            currentWeight += weights[bonusItemsDb[availableKeys[i]].systemRarity];
+                            if (roll < currentWeight) {
+                                selectedKey = availableKeys[i];
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if(box) {
+                    box.src = "box-open.png";
+                }
 
                 setTimeout(function() {
                     if(box) box.style.display = 'none';
@@ -931,8 +1027,30 @@
                     if (isNothing) {
                         currentBonusItem = null;
                         document.getElementById('bonus-fail-result').style.display = 'block';
+                        
+                        if (!secondBoxAttempted) {
+                            document.getElementById('bonus-fail-btn').style.display = 'none';
+                            setTimeout(() => {
+                                triggerFailedBoxDialogue(1);
+                            }, 800);
+                        } else {
+                            document.getElementById('bonus-fail-btn').style.display = 'none';
+                            setTimeout(() => {
+                                showUndertaleBox("Может в следующий раз повезет больше, мяу.");
+                                var utBox = document.getElementById('undertale-dialog');
+                                var oldClick = utBox.onclick;
+                                utBox.onclick = function(e) {
+                                    if (e && e.target.tagName && e.target.tagName.toLowerCase() === 'button') return;
+                                    if(isTextWriting) return;
+                                    closeUndertaleBox();
+                                    document.getElementById('bonus-fail-result').style.display = 'none';
+                                    claimEmptyBonus();
+                                    utBox.onclick = oldClick; 
+                                };
+                            }, 800);
+                        }
                     } else {
-                        var randomKey = availableKeys[Math.floor(Math.random() * availableKeys.length)];
+                        var randomKey = selectedKey;
                         currentBonusItem = bonusItemsDb[randomKey];
 
                         document.getElementById('bonus-item-img').src = currentBonusItem.img;
@@ -968,7 +1086,7 @@
             });
             localStorage.setItem('inv_' + currentName, JSON.stringify(inventory));
             
-            if (currentName !== 'админ') {
+            if (currentName !== 'Sashenets') {
                 localStorage.setItem('last_bonus_time_' + currentName, new Date().getTime());
             }
 
@@ -978,7 +1096,7 @@
 
         function claimEmptyBonus() {
             triggerSound('sound-tap', 0.3);
-            if (currentName !== 'админ') {
+            if (currentName !== 'Sashenets') {
                 localStorage.setItem('last_bonus_time_' + currentName, new Date().getTime());
             }
             switchScreen('screen-inventory');
@@ -988,6 +1106,22 @@
         function buildInventoryGrid() {
             var grid = document.getElementById('main-inventory-grid');
             grid.innerHTML = '';
+
+            if (currentName) {
+                var rawInv = JSON.parse(localStorage.getItem('inv_' + currentName) || "[]");
+                var cleanInv = [];
+                var seen = {};
+                var hasFirst = localStorage.getItem('first_gift_claimed_' + currentName) === 'true';
+                if (hasFirst) seen['Цветочек от Джунджурика'] = true;
+
+                for (var k = 0; k < rawInv.length; k++) {
+                    if (!seen[rawInv[k].title]) {
+                        seen[rawInv[k].title] = true;
+                        cleanInv.push(rawInv[k]);
+                    }
+                }
+                localStorage.setItem('inv_' + currentName, JSON.stringify(cleanInv));
+            }
 
             var items = [];
             var hasFirstGift = localStorage.getItem('first_gift_claimed_' + currentName) === 'true';
@@ -1030,6 +1164,9 @@
             var contentBox = document.getElementById('modal-content-box');
             
             if (item.systemRarity === 'legendary') {
+                var legendaryImgSrc = 'cat-full.png';
+                var extraClass = (item.title === 'Кэтинаур') ? ' catinaur-spin-anim' : ' rotate-slow';
+                
                 contentBox.className = "modal-content legendary-layout";
                 contentBox.innerHTML = `
                     <div class="legendary-left">
@@ -1047,11 +1184,18 @@
                     </div>
                     <div class="legendary-right">
                         <div class="modal-glow-wrapper ${glowClasses[item.systemRarity]}">
-                            <img src="cat-full.png" id="clickable-flower" class="gift-inside rotate-slow" alt="Предмет" onclick="handleFlowerClick(event)">
+                            <img src="${legendaryImgSrc}" id="clickable-flower" class="gift-inside${extraClass}" alt="Предмет" onclick="handleFlowerClick(event)">
                         </div>
                     </div>
                 `;
-                fadeAudio('music-legendary', 0.7, 1500);
+                
+                if (item.title === 'Кэтинаур') {
+                    var catMus = document.getElementById('music-catinaur');
+                    if (catMus) { catMus.currentTime = 0; }
+                    fadeAudio('music-catinaur', 0.7, 1500);
+                } else {
+                    fadeAudio('music-legendary', 0.7, 1500);
+                }
             } else {
                 contentBox.className = "modal-content";
                 contentBox.innerHTML = `
@@ -1077,16 +1221,31 @@
             if(e) e.stopPropagation();
             triggerSound('sound-tap', 0.3);
             document.getElementById('gift-modal').classList.remove('active');
-            fadeAudio('music-legendary', 0, 1000);
+            
+            var catAudio = document.getElementById('music-catinaur');
+            if (catAudio && !catAudio.paused) {
+                fadeAudio('music-catinaur', 0, 1000, function() {
+                    catAudio.pause();
+                    catAudio.currentTime = 0;
+                });
+            } else {
+                fadeAudio('music-legendary', 0, 1000);
+            }
         }
 
         function handleFlowerClick(e) {
             e.stopPropagation();
             var img = document.getElementById('clickable-flower');
             
-            img.classList.remove('shake');
-            void img.offsetWidth;
-            img.classList.add('shake');
+            if (img.src.includes('cat-full')) {
+                img.classList.remove('cat-bounce-anim');
+                void img.offsetWidth;
+                img.classList.add('cat-bounce-anim');
+            } else {
+                img.classList.remove('shake');
+                void img.offsetWidth;
+                img.classList.add('shake');
+            }
             
             var soundIds = ['sound-item-var1', 'sound-item-var2', 'sound-item-var3'];
             var randomSound = soundIds[Math.floor(Math.random() * soundIds.length)];
@@ -1120,9 +1279,41 @@
             typeLetter();
         }
 
-        function closeUndertaleBox() {
+        function showUndertaleBoxWithButtons(message, btn1Text, btn2Text, callback) {
+            showUndertaleBox(message);
+            var checkInterval = setInterval(() => {
+                if (!isTextWriting) {
+                    clearInterval(checkInterval);
+                    var btns = document.getElementById('undertale-buttons');
+                    var b1 = btns.querySelectorAll('button')[0];
+                    var b2 = btns.querySelectorAll('button')[1];
+                    b1.innerText = btn1Text;
+                    b2.innerText = btn2Text;
+                    btns.style.display = 'block';
+                    window.undertaleCallback = callback;
+                }
+            }, 100);
+        }
+
+        function handleUndertaleBtn(e, res) {
+            e.stopPropagation();
+            document.getElementById('undertale-buttons').style.display = 'none';
+            if (window.undertaleCallback) {
+                window.undertaleCallback(res);
+                window.undertaleCallback = null;
+            }
+        }
+
+        function closeUndertaleBoxIfAllowed(event) {
+            if (event && event.target.tagName && event.target.tagName.toLowerCase() === 'button') return;
             if(isTextWriting) return;
+            if(document.getElementById('undertale-buttons').style.display !== 'none') return; 
+            closeUndertaleBox();
+        }
+
+        function closeUndertaleBox() {
             document.getElementById('undertale-dialog').classList.remove('active');
+            document.getElementById('undertale-buttons').style.display = 'none';
         }
 
         function startMenuTimerSync() {
@@ -1132,7 +1323,7 @@
         }
 
         function updateMenuTimerDisplay() {
-            if (currentName === 'админ') {
+            if (currentName === 'Sashenets') {
                 document.getElementById('menu-timer').style.display = 'none';
                 formattedTimeLeftGlobal = "00ч 00м 00с";
                 return;
@@ -1207,9 +1398,10 @@
 
         function spawnFlyingCatParticles(boxElement) {
             var container = boxElement.parentElement;
+            var particles = ["cat-particle1.png", "cat-particle2.png", "cat-particle3.png"];
             for(let i=0; i<3; i++) {
                 var cat = document.createElement('img');
-                cat.src = "cat-particle2.png";
+                cat.src = particles[i];
                 cat.className = "flying-cat-particle";
                 cat.style.left = "40%"; cat.style.top = "40%";
                 var angle = Math.random() * Math.PI * 2;
